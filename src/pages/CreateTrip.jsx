@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Sparkles, Navigation } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Sparkles, Navigation, Loader2, AlertCircle } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { StepIndicator } from '../components/trips/StepIndicator';
 import { Button } from '../components/ui/Button';
+import { tripsApi } from '../lib/api';
 
 const STEPS = ['Destination', 'Vibe', 'Budget', 'Review'];
 
@@ -20,10 +21,12 @@ const MOODS = [
 export default function CreateTrip() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     destination: '',
-    dates: '',
+    start_date: '',
+    end_date: '',
     mood: '',
     budget: 50000,
   });
@@ -31,37 +34,41 @@ export default function CreateTrip() {
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      navigate('/dashboard'); // simulate redirect to the new trip dashboard
-    }, 2500);
+  const handleCreate = async () => {
+    setIsCreating(true);
+    setError('');
+    try {
+      const payload = {
+        title: `${formData.destination} Trip`,
+        destination: formData.destination,
+        start_date: formData.start_date || null,
+        end_date: formData.end_date || null,
+        mood: formData.mood,
+        budget: formData.budget,
+        status: 'planned',
+      };
+      const res = await tripsApi.create(payload);
+      const newTripId = res?.data?.id;
+      navigate(newTripId ? `/trips/${newTripId}` : '/trips');
+    } catch (err) {
+      setError(err.message || 'Failed to create trip. Please try again.');
+      setIsCreating(false);
+    }
   };
 
   const slideVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 50 : -50,
-      opacity: 0
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 30 }
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 50 : -50,
-      opacity: 0,
-      transition: { duration: 0.2 }
-    })
+    enter: (direction) => ({ x: direction > 0 ? 50 : -50, opacity: 0 }),
+    center: { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 30 } },
+    exit: (direction) => ({ x: direction < 0 ? 50 : -50, opacity: 0, transition: { duration: 0.2 } })
   };
 
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto pb-20 pt-8">
-        
+
         <div className="flex items-center gap-4 mb-10">
-          <button 
-            onClick={() => currentStep === 0 ? navigate('/trips') : prevStep()} 
+          <button
+            onClick={() => currentStep === 0 ? navigate('/trips') : prevStep()}
             className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
           >
             <ArrowLeft size={18} />
@@ -72,9 +79,20 @@ export default function CreateTrip() {
         <StepIndicator currentStep={currentStep} steps={STEPS} />
 
         <div className="bg-[#111827] border border-white/10 rounded-[2rem] p-8 md:p-12 min-h-[400px] relative overflow-hidden">
-          
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+            >
+              <AlertCircle size={16} className="shrink-0" />
+              {error}
+            </motion.div>
+          )}
+
           <AnimatePresence mode="wait" custom={1}>
-            
+
             {/* STEP 1: DESTINATION */}
             {currentStep === 0 && (
               <motion.div key="step1" custom={1} variants={slideVariants} initial="enter" animate="center" exit="exit" className="space-y-8 max-w-xl mx-auto">
@@ -82,35 +100,42 @@ export default function CreateTrip() {
                   <h2 className="text-3xl font-display font-bold text-white mb-2">Where are you going?</h2>
                   <p className="text-white/50">Enter your destination and dates.</p>
                 </div>
-
                 <div className="space-y-5">
                   <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
                       <MapPin size={20} />
                     </div>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={formData.destination}
-                      onChange={e => setFormData({...formData, destination: e.target.value})}
-                      placeholder="e.g. Kyoto, Japan"
+                      onChange={e => setFormData({ ...formData, destination: e.target.value })}
+                      placeholder="e.g. Goa, India"
                       className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-lg text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
                     />
-                    <button className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-400 hover:text-primary-300 font-medium text-sm flex items-center gap-1">
-                      <Navigation size={14} /> Use current location
-                    </button>
                   </div>
-
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
-                      <Calendar size={20} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
+                        <Calendar size={18} />
+                      </div>
+                      <input
+                        type="date"
+                        value={formData.start_date}
+                        onChange={e => setFormData({ ...formData, start_date: e.target.value })}
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:bg-white/10 focus:border-primary/50 transition-all [color-scheme:dark]"
+                      />
                     </div>
-                    <input 
-                      type="text" 
-                      value={formData.dates}
-                      onChange={e => setFormData({...formData, dates: e.target.value})}
-                      placeholder="Select dates"
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-lg text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
-                    />
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
+                        <Calendar size={18} />
+                      </div>
+                      <input
+                        type="date"
+                        value={formData.end_date}
+                        onChange={e => setFormData({ ...formData, end_date: e.target.value })}
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:bg-white/10 focus:border-primary/50 transition-all [color-scheme:dark]"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -123,15 +148,14 @@ export default function CreateTrip() {
                   <h2 className="text-3xl font-display font-bold text-white mb-2">What's the vibe?</h2>
                   <p className="text-white/50">Select the mood for your trip to help our AI personalize it.</p>
                 </div>
-
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {MOODS.map(mood => (
                     <button
                       key={mood.id}
-                      onClick={() => setFormData({...formData, mood: mood.id})}
+                      onClick={() => setFormData({ ...formData, mood: mood.id })}
                       className={`p-6 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 border ${
-                        formData.mood === mood.id 
-                          ? `${mood.bg} ${mood.border} shadow-glow transform scale-[1.02]` 
+                        formData.mood === mood.id
+                          ? `${mood.bg} ${mood.border} shadow-glow transform scale-[1.02]`
                           : 'bg-white/5 border-white/10 hover:bg-white/10'
                       }`}
                     >
@@ -152,22 +176,19 @@ export default function CreateTrip() {
                   <h2 className="text-3xl font-display font-bold text-white mb-2">Set your budget</h2>
                   <p className="text-white/50">How much are you looking to spend?</p>
                 </div>
-
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
                   <h3 className="text-5xl font-display font-bold text-white mb-8">
                     ₹{formData.budget.toLocaleString()}
                   </h3>
-                  
-                  <input 
-                    type="range" 
-                    min="10000" 
-                    max="500000" 
+                  <input
+                    type="range"
+                    min="10000"
+                    max="500000"
                     step="5000"
                     value={formData.budget}
-                    onChange={(e) => setFormData({...formData, budget: parseInt(e.target.value)})}
+                    onChange={(e) => setFormData({ ...formData, budget: parseInt(e.target.value) })}
                     className="w-full accent-primary-500 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
                   />
-                  
                   <div className="flex justify-between text-white/40 text-sm mt-4 font-medium">
                     <span>Budget Friendly</span>
                     <span>Luxury</span>
@@ -183,18 +204,25 @@ export default function CreateTrip() {
                   <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow mx-auto mb-6">
                     <Sparkles size={32} className="text-white" />
                   </div>
-                  <h2 className="text-3xl font-display font-bold text-white mb-2">Ready to generate?</h2>
-                  <p className="text-white/50">Traveloop AI will build a complete itinerary in seconds.</p>
+                  <h2 className="text-3xl font-display font-bold text-white mb-2">Ready to create?</h2>
+                  <p className="text-white/50">Review your trip details below.</p>
                 </div>
-
                 <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 space-y-4">
                   <div className="flex justify-between pb-4 border-b border-white/10">
                     <span className="text-white/50">Destination</span>
-                    <span className="font-semibold text-white">{formData.destination || 'Kyoto, Japan'}</span>
+                    <span className="font-semibold text-white">{formData.destination || '—'}</span>
+                  </div>
+                  <div className="flex justify-between pb-4 border-b border-white/10">
+                    <span className="text-white/50">Dates</span>
+                    <span className="font-semibold text-white text-sm">
+                      {formData.start_date && formData.end_date
+                        ? `${formData.start_date} → ${formData.end_date}`
+                        : '—'}
+                    </span>
                   </div>
                   <div className="flex justify-between pb-4 border-b border-white/10">
                     <span className="text-white/50">Vibe</span>
-                    <span className="font-semibold text-white capitalize">{formData.mood || 'Adventure'}</span>
+                    <span className="font-semibold text-white capitalize">{formData.mood || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/50">Budget</span>
@@ -205,13 +233,12 @@ export default function CreateTrip() {
             )}
 
           </AnimatePresence>
-
         </div>
 
-        {/* Navigation Bar */}
+        {/* Navigation */}
         <div className="flex justify-between items-center mt-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={prevStep}
             disabled={currentStep === 0}
             className={currentStep === 0 ? 'opacity-0 pointer-events-none' : ''}
@@ -220,13 +247,22 @@ export default function CreateTrip() {
           </Button>
 
           {currentStep < STEPS.length - 1 ? (
-            <Button onClick={nextStep} className="px-8 shadow-glow">
+            <Button
+              onClick={nextStep}
+              disabled={currentStep === 0 && !formData.destination}
+              className="px-8 shadow-glow"
+            >
               Continue <ArrowRight size={16} className="ml-2" />
             </Button>
           ) : (
-            <Button onClick={handleGenerate} isLoading={isGenerating} className="px-8 shadow-glow" size="lg">
+            <Button
+              onClick={handleCreate}
+              isLoading={isCreating}
+              className="px-8 shadow-glow"
+              size="lg"
+            >
               <Sparkles size={18} className="mr-2" />
-              Generate Trip
+              Create Trip
             </Button>
           )}
         </div>

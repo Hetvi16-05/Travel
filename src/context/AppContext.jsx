@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+<<<<<<< HEAD
 import api from '../lib/api'
 
 const AppContext = createContext(null)
@@ -18,6 +19,12 @@ export const mockUser = {
   preferences: { currency: 'INR', language: 'English', theme: 'dark' },
 }
 
+=======
+import { authApi } from '../lib/api'
+
+const AppContext = createContext(null)
+
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
 // Decode a Google id_token payload (base64url) — no verification, read-only
 function decodeJwtPayload(token) {
   try {
@@ -35,9 +42,15 @@ export function AppProvider({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeTrip, setActiveTrip] = useState(null)
   const [theme, setTheme] = useState('dark')
+<<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(true)
+=======
+  const [authLoading, setAuthLoading] = useState(true)
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
 
+  // Restore session from localStorage on mount
   useEffect(() => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const checkAuth = async () => {
       const token = localStorage.getItem('traveloop_token')
@@ -53,10 +66,14 @@ export function AppProvider({ children }) {
       setIsLoading(false)
 =======
     const savedToken = localStorage.getItem('traveloop_token')
+=======
+    const token = localStorage.getItem('traveloop_token')
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     const savedUser = localStorage.getItem('traveloop_user')
-    if (savedToken && savedUser) {
+    if (token && savedUser) {
       setUser(JSON.parse(savedUser))
       setIsAuthenticated(true)
+<<<<<<< HEAD
       return
     }
     const savedAuth = localStorage.getItem('traveloop_auth')
@@ -82,59 +99,83 @@ export function AppProvider({ children }) {
     const { token, user: userData } = response.data
     localStorage.setItem('traveloop_token', token)
     setUser(userData)
+=======
+    }
+    setAuthLoading(false)
+  }, [])
+
+  /**
+   * Email/password login — calls POST /api/auth/login
+   */
+  const login = async (email, password) => {
+    const { data } = await authApi.login(email, password)
+    const loggedInUser = {
+      ...data.user,
+      avatar: data.user.avatar_url || null,
+    }
+    localStorage.setItem('traveloop_token', data.accessToken)
+    localStorage.setItem('traveloop_user', JSON.stringify(loggedInUser))
+    setUser(loggedInUser)
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     setIsAuthenticated(true)
-    return true
+    return { success: true }
   }
 
   /**
-   * Called after Google One-Tap / button sign-in.
-   * POSTs the id_token to the backend; falls back to storing
-   * the decoded Google profile locally if the backend is offline.
+   * Email/password register — calls POST /api/auth/register
+   */
+  const register = async (name, email, password) => {
+    const { data } = await authApi.register(name, email, password)
+    const newUser = {
+      ...data.user,
+      avatar: data.user.avatar_url || null,
+    }
+    localStorage.setItem('traveloop_token', data.accessToken)
+    localStorage.setItem('traveloop_user', JSON.stringify(newUser))
+    setUser(newUser)
+    setIsAuthenticated(true)
+    return { success: true }
+  }
+
+  /**
+   * Google sign-in — POSTs id_token to /api/auth/google
+   * Falls back to decoded Google profile if backend is unreachable.
    */
   const googleLogin = async (credentialResponse) => {
     const idToken = credentialResponse.credential
     const profile = decodeJwtPayload(idToken)
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      })
-
-      if (res.ok) {
-        const { data } = await res.json()
-        const loggedInUser = {
-          ...data.user,
-          avatar: data.user.avatar_url || profile?.picture || null,
-        }
-        localStorage.setItem('traveloop_token', data.accessToken)
-        localStorage.setItem('traveloop_user', JSON.stringify(loggedInUser))
-        setUser(loggedInUser)
-        setIsAuthenticated(true)
-        return { success: true }
+      const { data } = await authApi.googleAuth(idToken)
+      const loggedInUser = {
+        ...data.user,
+        avatar: data.user.avatar_url || profile?.picture || null,
       }
+      localStorage.setItem('traveloop_token', data.accessToken)
+      localStorage.setItem('traveloop_user', JSON.stringify(loggedInUser))
+      setUser(loggedInUser)
+      setIsAuthenticated(true)
+      return { success: true }
     } catch {
-      // Backend offline — graceful fallback using Google profile
+      // Fallback: use Google-decoded profile directly (works without backend)
+      const fallbackUser = {
+        id: profile?.sub || 'google-user',
+        name: profile?.name || 'Google User',
+        email: profile?.email || '',
+        avatar: profile?.picture || null,
+        memberSince: new Date().getFullYear().toString(),
+        preferences: { currency: 'INR', language: 'English', theme: 'dark' },
+      }
+      localStorage.setItem('traveloop_user', JSON.stringify(fallbackUser))
+      localStorage.setItem('traveloop_auth', 'google')
+      setUser(fallbackUser)
+      setIsAuthenticated(true)
+      return { success: true, fallback: true }
     }
-
-    // Fallback: use Google-decoded profile directly (works without backend)
-    const fallbackUser = {
-      id: profile?.sub || 'google-user',
-      name: profile?.name || 'Google User',
-      email: profile?.email || '',
-      avatar: profile?.picture || null,
-      memberSince: new Date().getFullYear().toString(),
-      preferences: { currency: 'INR', language: 'English', theme: 'dark' },
-    }
-    localStorage.setItem('traveloop_user', JSON.stringify(fallbackUser))
-    localStorage.setItem('traveloop_auth', 'google')
-    setUser(fallbackUser)
-    setIsAuthenticated(true)
-    return { success: true, fallback: true }
   }
 
   const logout = () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
     localStorage.removeItem('traveloop_token')
 =======
@@ -142,6 +183,12 @@ export function AppProvider({ children }) {
     localStorage.removeItem('traveloop_token')
     localStorage.removeItem('traveloop_user')
 >>>>>>> 5d49661 (feat: implement Google OAuth2 authentication flow for users)
+=======
+    authApi.logout().catch(() => {})
+    localStorage.removeItem('traveloop_token')
+    localStorage.removeItem('traveloop_user')
+    localStorage.removeItem('traveloop_auth')
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     setUser(null)
     setIsAuthenticated(false)
   }
@@ -155,10 +202,15 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider value={{
 <<<<<<< HEAD
+<<<<<<< HEAD
       user, setUser, isAuthenticated, login, register, logout,
 =======
       user, setUser, isAuthenticated, login, logout, googleLogin,
 >>>>>>> 5d49661 (feat: implement Google OAuth2 authentication flow for users)
+=======
+      user, setUser, isAuthenticated, authLoading,
+      login, register, logout, googleLogin,
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
       sidebarOpen, setSidebarOpen, toggleSidebar,
       activeTrip, setActiveTrip,
       theme, toggleTheme,

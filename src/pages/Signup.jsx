@@ -18,7 +18,7 @@ export default function Signup() {
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { googleLogin } = useApp();
+  const { register, googleLogin } = useApp();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -31,17 +31,25 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (!isPasswordValid) {
       setError('Password must be at least 8 characters long');
       return;
     }
+=======
+    if (!isPasswordValid) return;
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     setIsLoading(true);
     setError('');
     try {
       await register(formData.name, formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
+<<<<<<< HEAD
       setError(err.message || 'Failed to create account');
+=======
+      setError(err.message || 'Could not create account. Please try again.');
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     } finally {
       setIsLoading(false);
     }
@@ -53,10 +61,8 @@ export default function Signup() {
     setIsGoogleLoading(true);
     setError('');
     try {
-      const result = await googleLogin(credentialResponse);
-      if (result?.success) {
-        navigate('/dashboard');
-      }
+      await googleLogin(credentialResponse);
+      navigate('/dashboard');
     } catch {
       setError('Google sign-in failed. Please try again.');
     } finally {
@@ -92,7 +98,7 @@ export default function Signup() {
   };
 
   return (
-    <AuthLayout 
+    <AuthLayout
       image="https://images.unsplash.com/photo-1522083111333-81a4eb862b5d?w=1200&q=80"
       quote="Planning a group trip used to be a nightmare. Now, we vote on everything and Traveloop handles the rest."
       author="The Wanderlust Crew"
@@ -104,6 +110,7 @@ export default function Signup() {
         </motion.div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         {error && (
           <motion.div 
             initial={{ opacity: 0, y: -10 }} 
@@ -113,6 +120,9 @@ export default function Signup() {
             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
 =======
         {/* Google Sign Up Button */}
+=======
+        {/* Google Sign Up */}
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
         <motion.div variants={itemVariants} className="mb-6">
           <button
             id="google-signup-btn"
@@ -154,9 +164,9 @@ export default function Signup() {
 <<<<<<< HEAD
 =======
         <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex-1 h-px bg-white/10" />
           <span className="text-white/30 text-sm">or sign up with email</span>
-          <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex-1 h-px bg-white/10" />
         </motion.div>
 
 >>>>>>> 5d49661 (feat: implement Google OAuth2 authentication flow for users)
@@ -166,11 +176,11 @@ export default function Signup() {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <User size={18} />
             </div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Full name"
               className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
             />
@@ -180,11 +190,11 @@ export default function Signup() {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <Mail size={18} />
             </div>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="Email address"
               className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
             />
@@ -194,22 +204,22 @@ export default function Signup() {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <Lock size={18} />
             </div>
-            <input 
-              type={showPassword ? 'text' : 'password'} 
+            <input
+              type={showPassword ? 'text' : 'password'}
               required
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Create password"
               className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-            
+
             {/* Validation Indicator */}
             <div className="absolute -bottom-6 left-1 flex items-center gap-2">
               <CheckCircle2 size={12} className={`transition-colors ${isPasswordValid ? 'text-green-400' : 'text-white/20'}`} />
@@ -220,7 +230,12 @@ export default function Signup() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="pt-6">
-            <Button type="submit" className="w-full h-12 text-base shadow-glow" isLoading={isLoading}>
+            <Button
+              type="submit"
+              className="w-full h-12 text-base shadow-glow"
+              isLoading={isLoading}
+              disabled={!isPasswordValid}
+            >
               <Sparkles size={18} /> Create Account
             </Button>
           </motion.div>

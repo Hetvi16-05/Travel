@@ -18,7 +18,11 @@ export default function Login() {
 =======
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+<<<<<<< HEAD
 >>>>>>> 5d49661 (feat: implement Google OAuth2 authentication flow for users)
+=======
+  const [formData, setFormData] = useState({ email: '', password: '' });
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,22 +32,23 @@ export default function Login() {
       await login(formData.email, formData.password);
       navigate('/dashboard');
     } catch (err) {
+<<<<<<< HEAD
       setError(err.message || 'Invalid email or password');
+=======
+      setError(err.message || 'Invalid email or password.');
+>>>>>>> ce7529b (feat: integrate real API endpoints for user registration and trip management)
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Called with the credential response from Google's popup
   const handleGoogleSuccess = async (credentialResponse) => {
     setIsGoogleLoading(true);
     setError('');
     try {
-      const result = await googleLogin(credentialResponse);
-      if (result?.success) {
-        navigate('/dashboard');
-      }
-    } catch (err) {
+      await googleLogin(credentialResponse);
+      navigate('/dashboard');
+    } catch {
       setError('Google sign-in failed. Please try again.');
     } finally {
       setIsGoogleLoading(false);
@@ -57,11 +62,9 @@ export default function Login() {
       setIsGoogleLoading(false);
     },
     flow: 'implicit',
-    // Use credential_response (id_token) flow
     ux_mode: 'popup',
   });
 
-  // Wrapper so we can show loading state immediately on click
   const handleGoogleClick = () => {
     setIsGoogleLoading(true);
     setError('');
@@ -79,7 +82,7 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout 
+    <AuthLayout
       image="https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1200&q=80"
       quote="The AI planner saved me countless hours. It's like having a local expert in my pocket."
       author="Sarah Jenkins, Explorer"
@@ -97,7 +100,7 @@ export default function Login() {
             type="button"
             disabled={isGoogleLoading}
             onClick={handleGoogleClick}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed text-white/80 transition-all font-medium group"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed text-white/80 transition-all font-medium"
           >
             {isGoogleLoading ? (
               <svg className="w-5 h-5 animate-spin text-white/60" fill="none" viewBox="0 0 24 24">
@@ -139,9 +142,9 @@ export default function Login() {
         )}
 
         <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
-          <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex-1 h-px bg-white/10" />
           <span className="text-white/30 text-sm">or continue with email</span>
-          <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex-1 h-px bg-white/10" />
         </motion.div>
 
         {error && (
@@ -161,9 +164,11 @@ export default function Login() {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <Mail size={18} />
             </div>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="Email address"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -176,16 +181,18 @@ export default function Login() {
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <Lock size={18} />
             </div>
-            <input 
-              type={showPassword ? 'text' : 'password'} 
+            <input
+              type={showPassword ? 'text' : 'password'}
               required
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
 
             />
-            <button 
+            <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
