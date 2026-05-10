@@ -53,11 +53,22 @@ export function MessageBubble({ message, isTyping, isLatestAI = false }) {
       className={`flex gap-3 w-full ${isAI ? '' : 'flex-row-reverse'}`}
     >
       {/* Avatar */}
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 ${
-        isAI ? 'bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30' : 'bg-white/10'
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 relative ${
+        isAI ? 'bg-indigo-600/20 border border-indigo-500/30' : 'bg-white/10'
       }`}>
         {isAI
-          ? <Sparkles size={16} className="text-white" />
+          ? (
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                alt="Guide" 
+                className="w-full h-full rounded-xl object-cover opacity-80"
+              />
+              <div className="absolute -bottom-1 -right-1 bg-indigo-500 rounded-full p-0.5 border-2 border-[#080f1c]">
+                <Sparkles size={8} className="text-white" />
+              </div>
+            </div>
+          )
           : (user?.avatar
             ? <img src={user.avatar} alt="You" className="w-full h-full rounded-xl object-cover" />
             : <User size={16} className="text-white" />)
@@ -123,6 +134,23 @@ export function MessageBubble({ message, isTyping, isLatestAI = false }) {
                 {Component}
               </motion.div>
             ))}
+          </div>
+        )}
+        
+        {isAI && !message.content && !isTyping && (
+          <div>
+            <motion.h1
+              initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
+              className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight"
+            >
+              Hi, I'm your Travia Guide.
+            </motion.h1>
+            <motion.p
+              initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
+              className="text-white/50 text-base max-w-md"
+            >
+              Tell me about your dream trip — where you're headed, your vibe, and your budget. I'll handle the planning so you can focus on the journey.
+            </motion.p>
           </div>
         )}
       </div>

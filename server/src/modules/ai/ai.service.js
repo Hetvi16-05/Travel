@@ -130,10 +130,17 @@ const generatePlan = async (message, history = []) => {
  * Chat with AI about a specific trip
  */
 const chat = async (tripId, userId, message) => {
-  // 1. Verify trip ownership
-  const tripRes = await query('SELECT * FROM trips WHERE id = $1 AND user_id = $2', [tripId, userId]);
+  // 1. Verify trip ownership and get user name
+  const tripRes = await query(`
+    SELECT t.*, u.name as user_name 
+    FROM trips t
+    JOIN users u ON u.id = t.user_id
+    WHERE t.id = $1 AND t.user_id = $2
+  `, [tripId, userId]);
+  
   if (!tripRes.rows[0]) throw ApiError.notFound('Trip not found');
   const trip = tripRes.rows[0];
+  const userName = trip.user_name?.split(' ')[0]; // Use first name
 
   // 2. Parse intent
   const { intent, params } = parseIntent(message);
@@ -219,7 +226,7 @@ const chat = async (tripId, userId, message) => {
   const scores = await scoreTripAndGetTips(tripId);
 
   // 5. Build Response
-  const response = buildResponse(intent, actions, scores);
+  const response = buildResponse(intent, actions, scores, userName);
 
   // 6. Save to history
   const historyMsg = [

@@ -201,7 +201,7 @@ export default function ItineraryBuilder() {
                         onClick={generateAIItinerary}
                         isLoading={isGenerating}
                       >
-                         <Sparkles size={18} className="mr-2" /> Magic AI Suggestion
+                         <Sparkles size={18} className="mr-2" /> Plan an AI Adventure
                       </Button>
                       <Button variant="secondary" size="lg" onClick={addStop}>
                          Add Stop Manually

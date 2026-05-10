@@ -188,13 +188,13 @@ export default function AiPlanner() {
                   initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
                   className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight"
                 >
-                  What's your next adventure?
+                  Hi, I'm your Travia Guide.
                 </motion.h1>
                 <motion.p
                   initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
                   className="text-white/50 text-base max-w-md mx-auto"
                 >
-                  Tell me where you want to go, how long, and your budget — I'll craft a personalized itinerary instantly.
+                  Tell me about your dream trip — where you're headed, your vibe, and your budget. I'll handle the planning so you can focus on the journey.
                 </motion.p>
               </div>
 

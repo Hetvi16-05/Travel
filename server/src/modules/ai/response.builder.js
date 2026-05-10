@@ -4,90 +4,93 @@
  */
 
 const GREETINGS = [
-  "Done! I've updated your trip with those changes.",
-  "Got it. Here's your revised itinerary:",
-  "Sure thing! I've made the updates you asked for.",
-  "All set. Here's what's new in your trip:",
-  "Perfect. I've adjusted your plan as requested.",
+  "Hey! I've just polished your itinerary with those updates. Take a look!",
+  "Got it! I've tweaked the plan. How does it look to you now?",
+  "Sure thing! I've made those changes for you. 🗺️",
+  "All set! Your trip is looking better than ever with these new details.",
+  "Perfect. I've adjusted your plan. I think you're going to love these changes!",
+  "I'm on it! Here's your revised travel plan. ✈️",
 ];
 
 const SUGGESTIONS = [
-  "Want me to also add some activities to these cities?",
-  "Should I check if this fits your budget?",
-  "Want me to suggest some popular food spots nearby?",
-  "Should I add a packing list for this trip?",
-  "Want me to optimize your route to save time?",
+  "Want me to look for some cool local spots or hidden gems in these cities?",
+  "Should we double-check if this fits your budget comfortably?",
+  "I know some great food spots nearby—want my top picks?",
+  "Should I help you put together a quick packing list so you don't forget anything?",
+  "I can optimize the route to save you some travel time. Interested?",
+  "Need help finding a place to stay that matches this vibe?",
 ];
 
-function buildResponse(intent, actions, scores) {
+function buildResponse(intent, actions, scores, userName) {
+  const namePrefix = userName ? `Hey ${userName}! ` : "";
   const greeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
   const suggestion = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)];
   let body = '';
 
   switch (intent) {
     case 'GENERATE_ITINERARY':
-      body = "I've built a full itinerary for you! Here are the stops:\n\n";
-      body += actions.map(a => `📍 **${a.city}, ${a.country}** — ${a.days} days, ${a.activities} activities`).join('\n');
+      body = "I've crafted a full adventure for you! Here's the roadmap for your journey:\n\n";
+      body += actions.map(a => `📍 **${a.city}, ${a.country}** — ${a.days} days of exploring ${a.activities} top activities`).join('\n');
       break;
 
     case 'ADD_STOP':
-      body = actions[0]?.message || "I've added the new stop to your trip.";
+      body = actions[0]?.message || "I've added that new stop to your journey. It's going to be a great addition!";
       break;
 
     case 'REMOVE_STOP':
-      body = actions[0]?.message || "I've removed that stop from your itinerary.";
+      body = actions[0]?.message || "No problem, I've cleared that stop from your itinerary to keep things simple.";
       break;
 
     case 'SET_BUDGET':
-      body = actions[0]?.message || "I've updated your trip budget.";
+      body = actions[0]?.message || "Budget updated! I'll keep an eye on things to make sure we stay on track.";
       break;
 
     case 'GET_SUGGESTIONS':
-      body = "Here are some top-rated activities you might enjoy:\n\n";
-      body += actions.map(a => `⭐ **${a.name}** (${a.category}) — ₹${a.price_est || 0}`).join('\n');
+      body = "I've picked out some local favorites I think you'll really enjoy:\n\n";
+      body += actions.map(a => `✨ **${a.name}** — A must-visit ${a.category} experience (est. ₹${a.price_est || 0})`).join('\n');
       break;
 
     case 'PACKING_TIPS':
-      body = "Based on your destinations, here's what you should pack:\n\n";
-      body += "• 🛂 Passport & Travel Docs\n";
-      body += "• 🔌 Universal Travel Adapter\n";
-      body += "• 👟 Comfortable Walking Shoes\n";
-      body += "• 🧥 Lightweight layers (check weather near departure)\n";
-      body += "• 🧴 Sunscreen & Basic First Aid\n";
+      body = "Since you're heading to these spots, I've put together a survival kit for you:\n\n";
+      body += "• 🛂 **Docs**: Don't forget that passport and insurance!\n";
+      body += "• 🔌 **Gear**: A universal adapter is a lifesaver.\n";
+      body += "• 👟 **Shoes**: Trust me, you'll want your most comfortable walking shoes.\n";
+      body += "• 🧥 **Layers**: Weather can be unpredictable, so pack light layers.\n";
+      body += "• 🧴 **Essentials**: Sunscreen and a small first-aid kit go a long way.\n";
       break;
 
     case 'BUDGET_CHECK':
       if (scores?.warnings?.some(w => w.type === 'budget')) {
-        body = "⚠️ Your current plan is slightly over budget. " + scores.warnings.find(w => w.type === 'budget').message;
+        body = "⚠️ Just a heads-up: we're pushing the budget a bit here. " + scores.warnings.find(w => w.type === 'budget').message;
       } else {
-        body = "✅ Your budget looks solid! You have enough allocated for all your planned activities and stays.";
+        body = "✅ Good news! Your budget looks perfect. You've got plenty of room for all these experiences.";
       }
       break;
 
     case 'OPTIMIZE':
-      body = "I've optimized your itinerary for efficiency! Check the updated route and sequence.";
+      body = "I've rearranged things to make your route as smooth as possible. More time exploring, less time traveling!";
       break;
 
     case 'UNKNOWN':
-      body = "I'm not quite sure I understood that. You can ask me to:\n\n";
-      body += "• \"Plan a 5-day trip to Goa\"\n";
-      body += "• \"Add Mumbai for 2 days\"\n";
-      body += "• \"Suggest activities in Udaipur\"\n";
-      body += "• \"Is my budget realistic?\"\n";
-      body += "• \"What should I pack?\"";
+      body = "I'm not quite sure I caught that. But I'd love to help! Try asking me something like:\n\n";
+      body += "• \"Plan a 5-day dream trip to Goa\"\n";
+      body += "• \"Add Mumbai to my trip for 2 days\"\n";
+      body += "• \"What are some cool things to do in Udaipur?\"\n";
+      body += "• \"Is my budget looking realistic?\"\n";
+      body += "• \"Help me with a packing list!\"";
       return { reply: body };
 
     default:
-      body = actions[0]?.message || "I've processed your request.";
+      body = actions[0]?.message || "I've taken care of that for you!";
   }
 
   // Append a relevant tip if available
   if (scores?.tips?.length > 0) {
-    body += `\n\n💡 **Tip:** ${scores.tips[0].message}`;
+    body += `\n\n💡 **Local Tip:** ${scores.tips[0].message}`;
   }
 
   return {
-    reply: `${greeting}\n\n${body}\n\n${suggestion}`,
+    reply: `${namePrefix}${greeting}\n\n${body}\n\n${suggestion}`,
     follow_up: suggestion,
   };
 }
