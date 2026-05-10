@@ -118,11 +118,11 @@ export default function Invoice() {
       {
         id: 6, category: 'AI Premium', icon: Sparkles,
         description: 'Travia AI Concierge — 24/7 itinerary support',
-        qty: `${days} days`, unitPrice: 5, total: days * 5,
+        qty: `${totalDays} days`, unitPrice: 5, total: totalDays * 5,
         accent: { text: 'text-primary-400', bg: 'bg-primary-500/10', border: 'border-primary-500/20' },
       },
     ],
-    taxes: (days * 20),
+    taxes: (totalDays * 20),
     discount: 60.50,
     insuranceAdded: true,
     insuranceCost: 49.00,

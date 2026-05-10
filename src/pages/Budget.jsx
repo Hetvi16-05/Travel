@@ -24,7 +24,7 @@ export default function Budget() {
 
   useEffect(() => {
     if (!id) {
-      navigate('/trips');
+      setIsLoading(false);
       return;
     }
 
@@ -43,10 +43,25 @@ export default function Budget() {
       }
     };
     fetchData();
-  }, [id, navigate]);
+  }, [id]);
 
-  if (!id) return null;
   if (isLoading) return <DashboardLayout><div className="flex justify-center py-20"><Loader size="lg" /></div></DashboardLayout>;
+  
+  if (!id || !trip) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center py-40 text-center">
+          <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-6">
+            <Wallet size={40} className="text-primary-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">No Trip Selected</h2>
+          <p className="text-white/50 mb-8 max-w-sm">Please select a trip from your itineraries to view its budget breakdown and expenses.</p>
+          <Button onClick={() => navigate('/trips')}>View All Trips</Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   if (error) return <DashboardLayout><div className="text-center py-20 text-red-400"><AlertCircle className="mx-auto mb-2" /><p>{error}</p></div></DashboardLayout>;
 
   const totalSpent = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);

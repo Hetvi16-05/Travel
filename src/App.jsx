@@ -140,10 +140,18 @@ function AppRoutes() {
         } 
       />
       <Route 
-        path="/notes" 
+        path="/budget" 
         element={
           <ProtectedRoute>
-            <Notes />
+            <Budget />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/:id/budget" 
+        element={
+          <ProtectedRoute>
+            <Budget />
           </ProtectedRoute>
         } 
       />

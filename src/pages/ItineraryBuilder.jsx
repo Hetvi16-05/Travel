@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download, Plus, AlertCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download, Plus, AlertCircle, Sparkles, Ticket, Wallet } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { DayCard } from '../components/itinerary/DayCard';
 import { Button } from '../components/ui/Button';
@@ -10,12 +10,13 @@ import { Loader } from '../components/ui/Loader';
 import { toast } from 'react-hot-toast';
 import PlannerPanel from '../components/itinerary/PlannerPanel';
 import MapComponent from '../components/itinerary/MapComponent';
+import { useApp } from '../context/AppContext';
 
 export default function ItineraryBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Map');
-  const { activeTrip, setActiveTrip } = useApp();
+  const { activeTrip, setActiveTrip, user } = useApp();
   const [trip, setTrip] = useState(null);
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -215,12 +216,12 @@ export default function ItineraryBuilder() {
           {/* Right Panel: Map/Overview */}
           <div className="hidden lg:flex w-1/2 h-full border-l border-white/5 flex-col bg-[#111827]">
             <div className="flex p-4 items-center justify-between border-b border-white/5">
-              <div className="flex gap-2">
-                {['Map', 'Calendar', 'Notes'].map(tab => (
+              <div className="flex gap-2 overflow-x-auto scrollbar-none">
+                {['Map', 'Calendar', 'Budget', 'Notes', 'Checklist'].map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                       activeTab === tab 
                         ? 'bg-white/10 text-white' 
                         : 'text-white/40 hover:text-white/80 hover:bg-white/5'
@@ -289,6 +290,44 @@ export default function ItineraryBuilder() {
                       <Button size="sm" onClick={() => navigate(`/trips/${id}/notes`)}>Create First Note</Button>
                     </div>
                   )}
+                </div>
+              )}
+
+              {activeTab === 'Budget' && (
+                <div className="h-full overflow-y-auto p-6 space-y-6 scrollbar-none pb-20">
+                   <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-white font-semibold">Quick Budget</h3>
+                      <Button size="sm" variant="secondary" onClick={() => navigate(`/trips/${id}/budget`)}>
+                         Full Analytics
+                      </Button>
+                   </div>
+                   <div className="p-6 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20">
+                      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Total Budget</p>
+                      <h4 className="text-2xl font-bold text-white">₹{(trip.budget || 0).toLocaleString()}</h4>
+                      <div className="mt-4 h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: '45%' }} />
+                      </div>
+                      <p className="text-white/40 text-xs mt-2 italic">Based on your current plan.</p>
+                   </div>
+                </div>
+              )}
+
+              {activeTab === 'Checklist' && (
+                <div className="h-full overflow-y-auto p-6 space-y-4 scrollbar-none pb-20">
+                   <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-white font-semibold">Tasks</h3>
+                      <Button size="sm" variant="secondary" onClick={() => navigate(`/trips/${id}/checklist`)}>
+                         Manage All
+                      </Button>
+                   </div>
+                   <div className="space-y-2">
+                      {['Pack clothes', 'Book tickets', 'Check passport'].map((task, i) => (
+                        <div key={i} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5">
+                           <div className="w-5 h-5 rounded border border-white/20 flex-shrink-0" />
+                           <span className="text-white text-sm">{task}</span>
+                        </div>
+                      ))}
+                   </div>
                 </div>
               )}
             </div>

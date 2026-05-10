@@ -31,10 +31,18 @@ export default function Sidebar() {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/explore', icon: Compass, label: 'Explore' },
-    { to: '/trips', icon: Map, label: 'Trips' },
+    { to: '/trips', icon: Map, label: 'Itineraries' },
+    { to: '/budget', icon: Wallet, label: 'Budget' },
     { to: '/ai-planner', icon: Sparkles, label: 'AI Planner' },
-    { to: '/shared', icon: Share2, label: 'Shared Trips' },
   ]
+
+  // Add trip-specific items if a trip is active
+  const tripItems = activeTrip ? [
+    { to: `/trips/${activeTrip}/itinerary`, icon: Plane, label: 'Itinerary' },
+    { to: `/trips/${activeTrip}/budget`, icon: Wallet, label: 'Budget' },
+    { to: `/trips/${activeTrip}/notes`, icon: NotebookPen, label: 'Notes' },
+    { to: `/trips/${activeTrip}/checklist`, icon: CheckSquare, label: 'Checklist' },
+  ] : []
 
   const handleLogout = () => {
     logout()
@@ -105,6 +113,40 @@ export default function Sidebar() {
               </AnimatePresence>
             </NavLink>
           ))}
+
+          {/* Trip-specific section */}
+          {tripItems.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-white/5 space-y-1">
+              {sidebarOpen && (
+                <p className="px-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-2">Current Trip</p>
+              )}
+              {tripItems.map(({ to, icon: Icon, label }) => (
+                <NavLink key={to} to={to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap overflow-hidden group ${
+                      isActive 
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                        : 'text-white/40 hover:bg-white/5 hover:text-white/90 border border-transparent'
+                    }`
+                  }
+                >
+                  <Icon size={18} className="flex-shrink-0" />
+                  <AnimatePresence>
+                    {sidebarOpen && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </NavLink>
+              ))}
+            </div>
+          )}
         </nav>
 
         {/* Bottom */}
