@@ -3,6 +3,16 @@ import api, { authApi } from '../lib/api'
 
 const AppContext = createContext(null)
 
+// Decode a Google id_token payload (base64url) — no verification, read-only
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(base64))
+  } catch {
+    return null
+  }
+}
+
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -21,7 +31,7 @@ export function AppProvider({ children }) {
         setUser(JSON.parse(savedUser))
         setIsAuthenticated(true)
         
-        // Optionally verify token with backend
+        // Verify token with backend
         try {
           const { data } = await authApi.me()
           const updatedUser = {
@@ -32,7 +42,6 @@ export function AppProvider({ children }) {
           localStorage.setItem('traveloop_user', JSON.stringify(updatedUser))
         } catch (error) {
           console.error('Token verification failed', error)
-          // If token is invalid, logout
           if (error.status === 401) {
             logout()
           }
@@ -86,12 +95,11 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      user, setUser, isAuthenticated, 
+      user, setUser, isAuthenticated, isLoading,
       login, register, logout,
       sidebarOpen, setSidebarOpen, toggleSidebar,
       activeTrip, setActiveTrip,
       theme, toggleTheme,
-      isLoading,
     }}>
       {children}
     </AppContext.Provider>

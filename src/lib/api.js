@@ -108,6 +108,22 @@ export const activitiesApi = {
   },
 }
 
+// ─── Share ────────────────────────────────────────────────────
+export const shareApi = {
+  getByToken: (token) => request('GET', `/share/${token}`),
+}
+
+// ─── AI Planner ───────────────────────────────────────────────
+export const aiApi = {
+  /**
+   * Generate an AI trip plan
+   * @param {string} message — user's natural language query
+   * @param {Array}  history — previous messages for context [{role, content}]
+   */
+  plan: (message, history = []) =>
+    request('POST', '/ai/plan', { message, history }),
+}
+
 // Default export for unified access
 const api = {
   auth: authApi,
@@ -115,6 +131,8 @@ const api = {
   trips: tripsApi,
   cities: citiesApi,
   activities: activitiesApi,
+  share: shareApi,
+  ai: aiApi,
 };
 
 export default api;
