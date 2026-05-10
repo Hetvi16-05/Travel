@@ -2,27 +2,27 @@ export const mockTrips = [
   {
     id: 1, title: 'Goa Beach Escape', destination: 'Goa, India', cover: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
     startDate: '2024-12-20', endDate: '2024-12-27', days: 7, travelers: 2, budget: 25000, spent: 18500,
-    mood: 'Couple', status: 'upcoming', rating: 4.8, highlights: ['Baga Beach','Fort Aguada','Dudhsagar Falls'],
+    mood: 'Couple', status: 'upcoming', paymentStatus: 'paid', invoiceId: 'TRV-2024-01-0011', rating: 4.8, highlights: ['Baga Beach','Fort Aguada','Dudhsagar Falls'],
   },
   {
     id: 2, title: 'Rajasthan Heritage Tour', destination: 'Jaipur, India', cover: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=80',
     startDate: '2024-11-10', endDate: '2024-11-17', days: 7, travelers: 4, budget: 60000, spent: 55000,
-    mood: 'Family', status: 'completed', rating: 4.9, highlights: ['Amber Fort','Hawa Mahal','City Palace'],
+    mood: 'Family', status: 'completed', paymentStatus: 'paid', invoiceId: 'TRV-2024-02-0022', rating: 4.9, highlights: ['Amber Fort','Hawa Mahal','City Palace'],
   },
   {
     id: 3, title: 'Manali Snow Adventure', destination: 'Manali, India', cover: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80',
     startDate: '2025-01-15', endDate: '2025-01-22', days: 7, travelers: 3, budget: 35000, spent: 0,
-    mood: 'Adventure', status: 'planned', rating: 0, highlights: ['Rohtang Pass','Solang Valley','Old Manali'],
+    mood: 'Adventure', status: 'planned', paymentStatus: 'unpaid', invoiceId: 'TRV-2025-03-0033', rating: 0, highlights: ['Rohtang Pass','Solang Valley','Old Manali'],
   },
   {
     id: 4, title: 'Kerala Backwaters', destination: 'Alleppey, India', cover: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80',
     startDate: '2025-02-05', endDate: '2025-02-10', days: 5, travelers: 2, budget: 20000, spent: 0,
-    mood: 'Luxury', status: 'planned', rating: 0, highlights: ['Houseboat','Vembanad Lake','Marari Beach'],
+    mood: 'Luxury', status: 'planned', paymentStatus: 'unpaid', invoiceId: 'TRV-2025-04-0044', rating: 0, highlights: ['Houseboat','Vembanad Lake','Marari Beach'],
   },
   {
     id: 5, title: 'Ladakh Road Trip', destination: 'Leh, India', cover: 'https://images.unsplash.com/photo-1597074866923-dc0589150358?w=800&q=80',
     startDate: '2024-08-01', endDate: '2024-08-12', days: 12, travelers: 5, budget: 80000, spent: 76000,
-    mood: 'Adventure', status: 'completed', rating: 5.0, highlights: ['Pangong Lake','Nubra Valley','Khardung La'],
+    mood: 'Adventure', status: 'completed', paymentStatus: 'paid', invoiceId: 'TRV-2024-05-0055', rating: 5.0, highlights: ['Pangong Lake','Nubra Valley','Khardung La'],
   },
 ]
 

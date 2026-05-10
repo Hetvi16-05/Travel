@@ -79,7 +79,7 @@ export default function CreateTrip() {
       };
       const res = await tripsApi.create(payload);
       const newTripId = res?.data?.id;
-      navigate(newTripId ? `/trips/${newTripId}/itinerary` : '/trips');
+      navigate('/invoice');
     } catch (err) {
       setError(err.message || 'Failed to create trip. Please try again.');
       setIsCreating(false);

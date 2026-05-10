@@ -19,6 +19,8 @@ import SharedTrip from './pages/SharedTrip'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import Admin from './pages/Admin'
+import Invoice from './pages/Invoice'
+import Payment from './pages/Payment'
 import './App.css'
 
 function ProtectedRoute({ children }) {
@@ -174,6 +176,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Admin />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/invoice" 
+        element={
+          <ProtectedRoute>
+            <Invoice />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/payment" 
+        element={
+          <ProtectedRoute>
+            <Payment />
           </ProtectedRoute>
         } 
       />
