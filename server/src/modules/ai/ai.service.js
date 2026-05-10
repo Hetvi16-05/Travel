@@ -50,18 +50,41 @@ const generatePlan = async (message, history = []) => {
       days: []
     };
 
-    // 3. Build days
+    // 3. Build days with a cycling algorithm (Tour Guide Logic)
     for (let d = 1; d <= days; d++) {
-      const dayActs = allActivities.slice((d - 1) * 3, d * 3).map((a, i) => ({
-        ...a,
-        time: i === 0 ? 'Morning' : i === 1 ? 'Afternoon' : 'Evening'
-      }));
+      const dayActivities = [];
+      const poolSize = allActivities.length;
+
+      if (poolSize > 0) {
+        // Use a daily offset to ensure variety, even if we have to repeat later
+        const dayOffset = (d - 1) * 3;
+        for (let i = 0; i < 3; i++) {
+          const act = allActivities[(dayOffset + i) % poolSize];
+          dayActivities.push({
+            ...act,
+            time: i === 0 ? 'Morning' : i === 1 ? 'Afternoon' : 'Evening'
+          });
+        }
+      } else {
+        dayActivities.push({ 
+          title: 'Discover local secrets', 
+          description: 'A professional guide takes you through the hidden alleys and local stories of ' + city.name, 
+          type: 'Culture', 
+          time: 'Morning', 
+          cost: 0 
+        });
+        dayActivities.push({ 
+          title: 'Culinary Heritage Walk', 
+          description: 'Taste the authentic flavors that define ' + city.name + ' for the locals.', 
+          type: 'Dining', 
+          time: 'Afternoon', 
+          cost: 20 
+        });
+      }
       
       itinerary.days.push({
         day: d,
-        activities: dayActs.length > 0 ? dayActs : [
-          { title: 'Explore local streets', description: 'Take a walk and discover hidden gems.', type: 'sightseeing', time: 'Morning', cost: 0 }
-        ]
+        activities: dayActivities
       });
     }
 

@@ -4,9 +4,12 @@ import { ActivityCard } from './ActivityCard';
 import { TransportConnector } from './TransportConnector';
 import ActivitySuggestions from './ActivitySuggestions';
 
-export function DayCard({ day, onActivityAdded }) {
+export function DayCard({ day, onActivityAdded, onFocus }) {
   return (
-    <div className="relative pl-6 pb-12 last:pb-0">
+    <div 
+      className="relative pl-6 pb-12 last:pb-0 cursor-pointer group/day"
+      onClick={() => onFocus && onFocus(day.day)}
+    >
       {/* Vertical Timeline Line */}
       <div className="absolute left-[9px] top-8 bottom-0 w-[2px] bg-gradient-to-b from-primary/50 to-transparent" />
 

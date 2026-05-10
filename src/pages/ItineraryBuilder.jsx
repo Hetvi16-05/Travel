@@ -9,21 +9,27 @@ import api from '../lib/api';
 import { Loader } from '../components/ui/Loader';
 import { toast } from 'react-hot-toast';
 import PlannerPanel from '../components/itinerary/PlannerPanel';
+import MapComponent from '../components/itinerary/MapComponent';
 
 export default function ItineraryBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Map');
   const [trip, setTrip] = useState(null);
+  const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [focusedDay, setFocusedDay] = useState(null);
 
   const fetchTrip = async () => {
-    setIsLoading(false); // Only set loading on first load
     try {
-      const response = await api.trips.getById(id);
-      setTrip(response.data);
+      const [tripRes, notesRes] = await Promise.all([
+        api.trips.getById(id),
+        api.trips.getNotes(id)
+      ]);
+      setTrip(tripRes.data);
+      setNotes(notesRes.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -162,7 +168,12 @@ export default function ItineraryBuilder() {
             <div className="max-w-2xl mx-auto space-y-8 pb-32">
               {formattedDays.length > 0 ? (
                 formattedDays.map((day) => (
-                  <DayCard key={day.id} day={day} onActivityAdded={handleActivityAdded} />
+                  <DayCard 
+                    key={day.id} 
+                    day={day} 
+                    onActivityAdded={handleActivityAdded} 
+                    onFocus={setFocusedDay}
+                  />
                 ))
               ) : (
                 <div className="text-center py-20 bg-white/[0.02] rounded-[3rem] border border-dashed border-white/10 relative overflow-hidden group">
@@ -213,23 +224,54 @@ export default function ItineraryBuilder() {
             <div className="flex-1 relative overflow-hidden">
               {activeTab === 'Map' && (
                 <div className="absolute inset-0 p-6 flex flex-col items-center justify-center">
-                  <div className="w-full h-full rounded-[2rem] border border-white/10 relative overflow-hidden bg-[#0A0F1C] flex flex-col group">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:24px_24px]" />
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                       <div className="w-20 h-20 bg-primary-500/10 rounded-full flex items-center justify-center mb-6">
-                          <MapIcon size={40} className="text-primary-400" />
-                       </div>
-                       <h3 className="text-xl font-bold text-white mb-2">Interactive Map Preview</h3>
-                       <p className="text-white/50 max-w-sm">
-                         We've mapped out {trip.stops?.length || 0} stops for your {trip.title}. View your route and nearby hotspots.
-                       </p>
-                    </div>
-                  </div>
+                  <MapComponent 
+                    stops={trip.stops || []} 
+                    selectedDay={focusedDay} 
+                  />
                 </div>
               )}
-              {activeTab !== 'Map' && (
-                <div className="h-full flex items-center justify-center text-white/30">
-                  <p>{activeTab} view coming soon for {trip.title}.</p>
+              
+              {activeTab === 'Calendar' && (
+                <div className="h-full overflow-y-auto p-6 space-y-6 scrollbar-none pb-20">
+                  {formattedDays.map(day => (
+                    <div key={day.id} className="space-y-3">
+                      <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-wider">
+                        <Calendar size={12} /> Day {day.day} • {day.date}
+                      </div>
+                      <div className="space-y-2">
+                        {day.items.map((item, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                            <span className="text-white text-sm font-medium">{item.title}</span>
+                            <span className="text-[10px] text-white/40">{item.time_slot}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {formattedDays.length === 0 && <p className="text-center py-20 text-white/20">No items in calendar.</p>}
+                </div>
+              )}
+
+              {activeTab === 'Notes' && (
+                <div className="h-full overflow-y-auto p-6 space-y-4 scrollbar-none pb-20">
+                  <div className="flex items-center justify-between mb-4">
+                     <h3 className="text-white font-semibold">Trip Notes</h3>
+                     <Button size="sm" variant="secondary" onClick={() => navigate(`/trips/${id}/notes`)}>
+                        Manage All
+                     </Button>
+                  </div>
+                  {notes.map(note => (
+                    <div key={note.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                      <h4 className="text-white font-medium mb-1 group-hover:text-primary-400 transition-colors">{note.title}</h4>
+                      <p className="text-white/40 text-xs line-clamp-2">{note.content}</p>
+                    </div>
+                  ))}
+                  {notes.length === 0 && (
+                    <div className="text-center py-20">
+                      <p className="text-white/20 text-sm mb-4">No notes for this trip yet.</p>
+                      <Button size="sm" onClick={() => navigate(`/trips/${id}/notes`)}>Create First Note</Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

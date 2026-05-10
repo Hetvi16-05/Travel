@@ -32,7 +32,16 @@ export default function Trips() {
   }, []);
 
   const filteredTrips = trips.filter(trip => {
-    const statusMatch = filter === 'All' || trip.status?.toLowerCase() === filter.toLowerCase();
+    const tripStatus = (trip.status || 'planned').toLowerCase();
+    const filterLower = filter.toLowerCase();
+    
+    let statusMatch = filter === 'All';
+    if (filterLower === 'upcoming') statusMatch = tripStatus === 'planned' || tripStatus === 'upcoming';
+    else if (filterLower === 'completed') statusMatch = tripStatus === 'completed';
+    else if (filterLower === 'drafts') statusMatch = tripStatus === 'draft' || tripStatus === 'planning';
+    else if (filter === 'All') statusMatch = true;
+    else statusMatch = tripStatus === filterLower;
+
     const searchMatch = !searchQuery || trip.title.toLowerCase().includes(searchQuery.toLowerCase());
     return statusMatch && searchMatch;
   });

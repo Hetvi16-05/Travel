@@ -41,11 +41,11 @@ export default function Checklist() {
     const item = items.find(i => i.id === itemId);
     setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_completed: !i.is_completed } : i));
     try {
-      await api.trips.updateChecklistItem(id, itemId, { is_completed: !item.is_completed });
+      await api.trips.updateChecklistItem(id, itemId, { is_done: !item.is_done });
     } catch (err) {
       console.error(err);
       // rollback on error
-      setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_completed: item.is_completed } : i));
+      setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_done: item.is_done } : i));
     }
   };
 
@@ -62,7 +62,7 @@ export default function Checklist() {
 
   const categoryList = Object.values(categories);
   const totalItems = items.length;
-  const completedItems = items.filter(i => i.is_completed).length;
+  const completedItems = items.filter(i => i.is_done).length;
   const progress = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
 
 
@@ -122,7 +122,7 @@ export default function Checklist() {
               <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <h3 className="text-lg font-semibold text-white">{category.title}</h3>
                 <span className="text-xs font-medium text-white/40 bg-white/5 px-2 py-1 rounded-lg">
-                  {category.items.filter(i => i.is_completed).length}/{category.items.length}
+                  {category.items.filter(i => i.is_done).length}/{category.items.length}
                 </span>
               </div>
 
@@ -144,14 +144,14 @@ export default function Checklist() {
                       <button 
                         onClick={() => toggleItem(item.id)}
                         className={`w-6 h-6 rounded-[6px] border flex items-center justify-center transition-all flex-shrink-0 ${
-                          item.is_completed 
+                          item.is_done 
                             ? 'bg-primary border-primary text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
                             : 'bg-transparent border-white/20 text-transparent hover:border-white/40'
                         }`}
                       >
                         <motion.div
                           initial={false}
-                          animate={{ scale: item.is_completed ? 1 : 0 }}
+                          animate={{ scale: item.is_done ? 1 : 0 }}
                         >
                           <Check size={14} strokeWidth={3} />
                         </motion.div>
@@ -159,9 +159,9 @@ export default function Checklist() {
 
                       
                       <span className={`flex-1 text-[15px] transition-all duration-300 ${
-                        item.is_completed ? 'text-white/30 line-through' : 'text-white/90'
+                        item.is_done ? 'text-white/30 line-through' : 'text-white/90'
                       }`}>
-                        {item.task}
+                        {item.label}
                       </span>
 
 

@@ -25,6 +25,7 @@ const getTripById = async (tripId, userId) => {
           SELECT json_agg(stop_data ORDER BY stop_data.day_number, stop_data.order_index)
           FROM (
             SELECT s.id, s.city_id, s.day_number, s.order_index, s.notes,
+              c.name as city_name, c.lat, c.lng,
               json_build_object('id', c.id, 'name', c.name, 'country', c.country, 'image_url', c.image_url) AS city,
               COALESCE(
                 (
@@ -36,6 +37,8 @@ const getTripById = async (tripId, userId) => {
                       TO_CHAR(sa.time_slot, 'HH24:MI') AS time,
                       ac.category AS type,
                       ac.price_est AS cost,
+                      ac.lat AS act_lat,
+                      ac.lng AS act_lng,
                       c.name AS location
                     FROM stop_activities sa
                     LEFT JOIN activity_catalog ac ON ac.id = sa.activity_id

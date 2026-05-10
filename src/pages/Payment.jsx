@@ -86,8 +86,14 @@ export default function Payment() {
     </DashboardLayout>
   );
 
-  const subtotal = (trip.days * 140) + 225 + 150 + (trip.days * 5); // Rough estimation matching Invoice logic
-  const taxes = trip.days * 20;
+  const startDate = new Date(trip.start_date);
+  const endDate = new Date(trip.end_date);
+  const days = (startDate && endDate && !isNaN(startDate) && !isNaN(endDate))
+    ? Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1)
+    : 1;
+
+  const subtotal = (days * 140) + 225 + 150 + (days * 5); 
+  const taxes = days * 20;
   const grand = subtotal + taxes + 49 - 60.50;
 
   if (paid) {

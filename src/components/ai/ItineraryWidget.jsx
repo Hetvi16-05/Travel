@@ -28,7 +28,7 @@ export function ItineraryWidget({ data, onRegenerate, showActionBar = true }) {
         destination: data.cityName,
         start_date: null,
         end_date: null,
-        status: 'planning',
+        status: 'planned',
         notes: `AI-generated ${data.duration} ${data.style} trip for ${data.travellerType}`,
       };
       const res = await tripsApi.create(tripPayload);
