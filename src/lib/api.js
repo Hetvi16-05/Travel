@@ -89,6 +89,7 @@ export const tripsApi = {
   addStop: (tripId, data) => request('POST', `/trips/${tripId}/stops`, data),
   updateChecklistItem: (tripId, itemId, data) => request('PATCH', `/trips/${tripId}/checklist/${itemId}`, data),
   updateNote: (tripId, noteId, data) => request('PATCH', `/trips/${tripId}/notes/${noteId}`, data),
+  aiPopulate: (tripId) => request('POST', `/trips/${tripId}/ai-populate`),
 }
 
 // ─── Cities ───────────────────────────────────────────────────

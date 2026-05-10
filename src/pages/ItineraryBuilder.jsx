@@ -16,6 +16,7 @@ export default function ItineraryBuilder() {
   const [trip, setTrip] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const fetchTrip = async () => {
     setIsLoading(true);
@@ -32,6 +33,19 @@ export default function ItineraryBuilder() {
   useEffect(() => {
     fetchTrip();
   }, [id]);
+
+  const generateAIItinerary = async () => {
+    setIsGenerating(true);
+    try {
+      await api.trips.aiPopulate(id);
+      toast.success('AI magic complete! Your itinerary is ready.');
+      fetchTrip();
+    } catch (err) {
+      toast.error('AI magic failed: ' + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const addStop = async () => {
     const cityName = prompt('Enter city name:');
@@ -94,11 +108,17 @@ export default function ItineraryBuilder() {
   };
 
   // Convert database stops to the format expected by DayCard if necessary
-  const formattedDays = trip.stops?.length > 0 ? trip.stops.map(stop => ({
-    day: stop.day_number,
-    city: stop.city?.name || 'Unknown City',
-    items: stop.activities || []
-  })) : [];
+  const formattedDays = trip.stops?.length > 0 ? trip.stops.map(stop => {
+    const dayDate = new Date(trip.start_date);
+    dayDate.setDate(dayDate.getDate() + (stop.day_number - 1));
+    
+    return {
+      day: stop.day_number,
+      date: dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      city: stop.city?.name || 'Unknown City',
+      items: stop.activities || []
+    };
+  }) : [];
 
   return (
     <DashboardLayout>
@@ -141,11 +161,28 @@ export default function ItineraryBuilder() {
                   <DayCard key={day.day} day={day} />
                 ))
               ) : (
-                <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
-                   <MapIcon className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                   <h3 className="text-lg font-bold text-white mb-2">Your itinerary is empty</h3>
-                   <p className="text-white/50 mb-6">Start by adding your first destination stop.</p>
-                   <Button variant="secondary" onClick={addStop}>Add First Stop</Button>
+                <div className="text-center py-20 bg-white/[0.02] rounded-[3rem] border border-dashed border-white/10 relative overflow-hidden group">
+                   <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                   <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-6 mx-auto relative z-10">
+                      <Sparkles className="w-10 h-10 text-primary-400 animate-pulse" />
+                   </div>
+                   <h3 className="text-2xl font-bold text-white mb-3 relative z-10">Your itinerary is empty</h3>
+                   <p className="text-white/50 mb-8 max-w-sm mx-auto relative z-10">
+                      Don't want to plan manually? Let our self-hosted AI suggest the perfect stops and activities for your {trip.title}.
+                   </p>
+                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+                      <Button 
+                        size="lg" 
+                        className="shadow-glow px-8" 
+                        onClick={generateAIItinerary}
+                        isLoading={isGenerating}
+                      >
+                         <Sparkles size={18} className="mr-2" /> Magic AI Suggestion
+                      </Button>
+                      <Button variant="secondary" size="lg" onClick={addStop}>
+                         Add Stop Manually
+                      </Button>
+                   </div>
                 </div>
               )}
             </div>

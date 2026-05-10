@@ -14,5 +14,6 @@ router.get('/:id',                     controller.getTripById);
 router.patch('/:id', validate(updateTripSchema), controller.updateTrip);
 router.delete('/:id',                  controller.deleteTrip);
 router.post('/:id/share',              controller.generateShare);
+router.post('/:id/ai-populate',        controller.aiPopulate);
 
 module.exports = router;

@@ -31,4 +31,9 @@ const generateShare = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { shareToken } });
 });
 
-module.exports = { getAllTrips, getTripById, createTrip, updateTrip, deleteTrip, generateShare };
+const aiPopulate = asyncHandler(async (req, res) => {
+  const data = await tripsService.aiPopulateTrip(req.params.id, req.user.id);
+  res.json({ success: true, data });
+});
+
+module.exports = { getAllTrips, getTripById, createTrip, updateTrip, deleteTrip, generateShare, aiPopulate };

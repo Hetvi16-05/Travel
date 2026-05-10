@@ -1,0 +1,10 @@
+-- Migration 016: Enrich cities with intelligence columns
+ALTER TABLE cities
+  ADD COLUMN IF NOT EXISTS tags            TEXT[] DEFAULT ARRAY[]::TEXT[],
+  ADD COLUMN IF NOT EXISTS best_months     INT[]  DEFAULT ARRAY[]::INT[],
+  ADD COLUMN IF NOT EXISTS avg_daily_cost  NUMERIC(10,2) DEFAULT 100,
+  ADD COLUMN IF NOT EXISTS safety_score    NUMERIC(3,1)  DEFAULT 7.0,
+  ADD COLUMN IF NOT EXISTS solo_friendly   BOOLEAN DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS family_friendly BOOLEAN DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS continent       VARCHAR(50),
+  ADD COLUMN IF NOT EXISTS popularity_score NUMERIC(5,1) DEFAULT 50;
