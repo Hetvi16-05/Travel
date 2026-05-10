@@ -34,7 +34,7 @@ export const Navbar = () => {
       <div
         className={cn(
           "max-w-7xl mx-auto rounded-2xl transition-all duration-500 flex items-center justify-between px-6 py-2",
-          scrolled ? "glass-dark shadow-2xl border-white/10" : "bg-transparent py-4"
+          scrolled ? "bg-black/40 backdrop-blur-xl shadow-2xl border border-white/10" : "bg-transparent py-4"
         )}
       >
         <Link href="/" className="flex items-center gap-2 group">

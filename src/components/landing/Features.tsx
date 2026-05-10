@@ -46,14 +46,14 @@ const features = [
 
 export const Features = () => {
   return (
-    <section className="py-24 px-6 relative">
+    <section id="features" className="py-32 px-6 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-24 max-w-3xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-6"
+            className="text-5xl md:text-7xl font-bold mb-8 tracking-tight"
           >
             Futuristic <span className="text-gradient">Capabilities</span>
           </motion.h2>
@@ -61,10 +61,10 @@ export const Features = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-white/60 max-w-2xl mx-auto"
+            transition={{ delay: 0.1 }}
+            className="text-white/40 text-xl leading-relaxed"
           >
-            Experience a new era of travel planning with our state-of-the-art AI features.
+            Experience a new era of travel planning with our suite of intelligent tools designed for the modern nomad.
           </motion.p>
         </div>
 

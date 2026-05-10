@@ -3,7 +3,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Star, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Star, ArrowRight } from "lucide-react";
 
 const destinations = [
   {
@@ -40,21 +41,39 @@ export const PopularDestinations = () => {
   return (
     <section className="py-40 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-          <div>
-            <motion.h2
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl font-bold mb-4"
+        <div className="flex flex-col items-center text-center mb-24 space-y-6">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl md:text-8xl font-black tracking-tighter leading-[1]"
+          >
+            Popular <span className="text-gradient">Destinations</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-white/30 text-lg md:text-xl max-w-2xl mx-auto font-medium"
+          >
+            Curated by AI based on global trends and your preferences.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="pt-6"
+          >
+            <Link
+              href="/explore"
+              className="px-10 py-4 rounded-2xl bg-white/5 border border-white/10 text-pink-500 font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 group shadow-xl"
             >
-              Popular <span className="text-gradient">Destinations</span>
-            </motion.h2>
-            <p className="text-white/50">Curated by AI based on global trends and your preferences.</p>
-          </div>
-          <button className="text-pink-500 font-semibold hover:text-pink-400 transition-colors flex items-center gap-2">
-            View all destinations <span className="text-xl">→</span>
-          </button>
+              View all destinations
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

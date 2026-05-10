@@ -65,48 +65,46 @@ export default function ExplorePage() {
   const [activeCategory, setActiveCategory] = useState("Trending");
 
   return (
-    <main className="min-h-screen pt-24">
+    <main className="min-h-screen pt-64 md:pt-80 overflow-x-hidden bg-[#030014]">
       <Navbar />
       
-      <section className="px-6 py-12">
-        <div className="max-w-7xl mx-auto">
+      <section className="px-8 md:px-16 lg:px-24 py-24 w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center relative z-10">
           {/* AI Search Header */}
-          <div className="text-center mb-16">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
+          <div className="w-full flex flex-col items-center justify-center relative z-10 pt-56 md:pt-72 px-8 md:px-20 lg:px-32 mb-36">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-6xl font-bold mb-6"
+              transition={{ duration: 0.8 }}
+              className="flex flex-col items-center text-center w-full mx-auto"
             >
-              Discover Your Next <br /><span className="text-gradient">Masterpiece Trip</span>
-            </motion.h1>
-            
-            <div className="max-w-2xl mx-auto relative mt-12">
-              <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-                <Search className="w-5 h-5 text-white/30" />
+                <div className="absolute inset-y-0 left-8 flex items-center pointer-events-none">
+                  <Search className="w-8 h-8 text-white/30" />
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="Where do you want to go? AI will help you decide..."
+                  className="w-full bg-white/5 border border-white/10 backdrop-blur-3xl py-10 pl-20 pr-32 rounded-[40px] text-2xl focus:outline-none focus:border-violet-500/50 transition-all shadow-2xl text-center placeholder:text-white/20"
+                />
+                <button className="absolute right-6 top-1/2 -translate-y-1/2 bg-gradient-to-r from-violet-600 to-pink-600 px-12 py-5 rounded-3xl font-bold text-lg flex items-center gap-3 shadow-lg shadow-pink-500/20 active:scale-95 transition-transform">
+                  <Zap className="w-5 h-5" /> AI Suggest
+                </button>
               </div>
-              <input 
-                type="text" 
-                placeholder="Where do you want to go? AI will help you decide..."
-                className="w-full glass py-6 pl-16 pr-24 rounded-3xl text-lg focus:outline-none focus:border-violet-500/50 transition-all shadow-2xl"
-              />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-violet-600 to-pink-600 px-6 py-3 rounded-2xl font-bold text-sm flex items-center gap-2">
-                <Zap className="w-4 h-4" /> AI Suggest
-              </button>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center justify-between gap-6 mb-12">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <div className="flex flex-col items-center gap-16 mb-40 w-full">
+            <div className="flex items-center justify-center gap-6 overflow-x-auto pb-10 no-scrollbar w-full">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={cn(
-                    "px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                    "px-14 py-6 rounded-[28px] text-lg font-bold transition-all whitespace-nowrap border",
                     activeCategory === cat 
-                      ? "bg-white text-black" 
-                      : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                      ? "bg-white text-black border-white shadow-[0_0_50px_rgba(255,255,255,0.4)]" 
+                      : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:border-white/20"
                   )}
                 >
                   {cat}
@@ -114,13 +112,18 @@ export default function ExplorePage() {
               ))}
             </div>
             
-            <button className="flex items-center gap-2 glass px-5 py-2 rounded-full text-sm font-medium hover:bg-white/10 transition-all">
-              <Filter className="w-4 h-4" /> All Filters
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              <button className="flex items-center gap-4 bg-white/5 border border-white/10 px-14 py-6 rounded-[28px] text-lg font-bold hover:bg-white/10 transition-all shadow-xl">
+                <Filter className="w-6 h-6 text-pink-500" /> Advanced Filters
+              </button>
+              <button className="flex items-center gap-4 bg-white/5 border border-white/10 px-14 py-6 rounded-[28px] text-lg font-bold hover:bg-white/10 transition-all shadow-xl">
+                <DollarSign className="w-6 h-6 text-green-500" /> Budget Range
+              </button>
+            </div>
           </div>
 
-          {/* Destination Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Destination Grid - More columns for full screen */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 w-full">
             {destinations.map((dest, index) => (
               <motion.div
                 key={dest.id}
@@ -130,48 +133,49 @@ export default function ExplorePage() {
                 transition={{ delay: index * 0.1 }}
                 className="group cursor-pointer"
               >
-                <div className="relative aspect-[4/3] rounded-[32px] overflow-hidden mb-6 shadow-2xl">
+                <div className="relative aspect-[4/3] rounded-[48px] overflow-hidden mb-8 shadow-2xl border border-white/10">
                   <Image 
                     src={dest.image} 
                     alt={dest.name} 
                     fill 
                     className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute top-4 right-4 glass px-3 py-1 rounded-xl flex items-center gap-1 font-bold text-sm">
-                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                  <div className="absolute top-6 right-6 glass px-5 py-2 rounded-2xl flex items-center gap-2 font-black text-lg">
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
                     {dest.score}
                   </div>
-                  <div className="absolute bottom-4 left-4 flex gap-2">
+                  <div className="absolute bottom-6 left-6 flex gap-3">
                     {dest.tags.map(tag => (
-                      <span key={tag} className="glass px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest">
+                      <span key={tag} className="glass px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-[0.2em]">
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start px-4">
                   <div>
-                    <h3 className="text-xl font-bold mb-1 group-hover:text-pink-500 transition-colors">{dest.name}</h3>
-                    <div className="flex items-center gap-1 text-white/40 text-sm">
-                      <MapPin className="w-3 h-3" /> Asia • Recommended for you
+                    <h3 className="text-2xl font-black mb-2 group-hover:text-pink-500 transition-colors tracking-tight">{dest.name}</h3>
+                    <div className="flex items-center gap-2 text-white/30 text-base">
+                      <MapPin className="w-4 h-4" /> Asia • Recommended for you
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-lg">{dest.budget}</p>
-                    <p className="text-[10px] text-white/30 uppercase font-bold">Budget</p>
+                    <p className="font-black text-2xl">{dest.budget}</p>
+                    <p className="text-[12px] text-white/20 uppercase font-bold tracking-widest">Budget</p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
           
-          <div className="mt-20 text-center">
-            <button className="glass px-10 py-4 rounded-full font-bold hover:bg-white/10 transition-all">
+          <div className="mt-32 text-center w-full">
+            <button className="bg-white/5 border border-white/10 px-16 py-6 rounded-[32px] font-black text-xl hover:bg-white/10 transition-all shadow-2xl">
               Load More Destinations
             </button>
           </div>
         </div>
       </section>
+>
 
       <Footer />
     </main>
