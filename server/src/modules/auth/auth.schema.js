@@ -21,4 +21,10 @@ const refreshSchema = {
   }),
 };
 
-module.exports = { registerSchema, loginSchema, refreshSchema };
+const googleAuthSchema = {
+  body: Joi.object({
+    idToken: Joi.string().required(),
+  }),
+};
+
+module.exports = { registerSchema, loginSchema, refreshSchema, googleAuthSchema };

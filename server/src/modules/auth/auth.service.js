@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const { query } = require('../../config/db');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const ApiError = require('../../utils/ApiError');
 const { sanitizeUser } = require('../../utils/helpers');
 
@@ -73,4 +76,56 @@ const refreshAccessToken = async (refreshToken) => {
   return { accessToken };
 };
 
-module.exports = { register, login, refreshAccessToken };
+/**
+ * Verify a Google id_token and upsert the user in the database.
+ * Works for both sign-in and sign-up — Google handles both flows.
+ */
+const googleAuth = async ({ idToken }) => {
+  // Verify the token with Google
+  let ticket;
+  try {
+    ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+  } catch {
+    throw ApiError.unauthorized('Invalid Google token');
+  }
+
+  const payload = ticket.getPayload();
+  const { sub: googleId, email, name, picture } = payload;
+
+  // Check if user already exists (by email or google_id)
+  let result = await query(
+    'SELECT * FROM users WHERE email = $1 OR google_id = $2 LIMIT 1',
+    [email, googleId]
+  );
+
+  let user;
+  if (result.rows.length > 0) {
+    // Existing user — update google_id and avatar if not already set
+    const existing = result.rows[0];
+    result = await query(
+      `UPDATE users
+       SET google_id = $1, avatar_url = COALESCE(avatar_url, $2), updated_at = NOW()
+       WHERE id = $3
+       RETURNING id, name, email, role, avatar_url, created_at`,
+      [googleId, picture, existing.id]
+    );
+    user = result.rows[0];
+  } else {
+    // New user — create account without a password
+    result = await query(
+      `INSERT INTO users (name, email, google_id, avatar_url, password_hash)
+       VALUES ($1, $2, $3, $4, '')
+       RETURNING id, name, email, role, avatar_url, created_at`,
+      [name, email, googleId, picture]
+    );
+    user = result.rows[0];
+  }
+
+  const tokens = generateTokens(user.id);
+  return { user: sanitizeUser(user), ...tokens };
+};
+
+module.exports = { register, login, refreshAccessToken, googleAuth };
