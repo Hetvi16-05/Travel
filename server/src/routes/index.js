@@ -11,6 +11,8 @@ const checklistRoutes  = require('../modules/checklist/checklist.routes');
 const notesRoutes      = require('../modules/notes/notes.routes');
 const shareRoutes      = require('../modules/share/share.routes');
 const adminRoutes      = require('../modules/admin/admin.routes');
+const savedDestinationsRoutes = require('../modules/saved_destinations/saved_destinations.routes');
+
 
 const router = Router();
 
@@ -25,6 +27,10 @@ router.use('/users', usersRoutes);
 
 // Cities
 router.use('/cities', citiesRoutes);
+
+// Saved Destinations
+router.use('/saved-destinations', savedDestinationsRoutes);
+
 
 // Trips + nested resources
 router.use('/trips', tripsRoutes);
