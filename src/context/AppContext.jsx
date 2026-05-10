@@ -3,7 +3,6 @@ import api, { authApi } from '../lib/api'
 
 const AppContext = createContext(null)
 
-// Decode a Google id_token payload (base64url) — no verification, read-only
 function decodeJwtPayload(token) {
   try {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
@@ -20,8 +19,8 @@ export function AppProvider({ children }) {
   const [activeTrip, setActiveTrip] = useState(null)
   const [theme, setTheme] = useState('dark')
   const [isLoading, setIsLoading] = useState(true)
+  const [preferences, setPreferences] = useState(null)
 
-  // Restore session from localStorage on mount
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('traveloop_token')
@@ -31,17 +30,21 @@ export function AppProvider({ children }) {
         setUser(JSON.parse(savedUser))
         setIsAuthenticated(true)
         
-        // Verify token with backend
         try {
-          const { data } = await authApi.me()
+          const [{ data }, prefRes] = await Promise.all([
+            authApi.me(),
+            api.users.getPreferences()
+          ]);
+          
           const updatedUser = {
             ...data.user,
             avatar: data.user.avatar_url || null,
           }
           setUser(updatedUser)
+          setPreferences(prefRes.data)
           localStorage.setItem('traveloop_user', JSON.stringify(updatedUser))
         } catch (error) {
-          console.error('Token verification failed', error)
+          console.error('Initial sync failed', error)
           if (error.status === 401) {
             logout()
           }
@@ -62,6 +65,13 @@ export function AppProvider({ children }) {
     localStorage.setItem('traveloop_user', JSON.stringify(loggedInUser))
     setUser(loggedInUser)
     setIsAuthenticated(true)
+    
+    // Fetch prefs after login
+    try {
+      const prefRes = await api.users.getPreferences()
+      setPreferences(prefRes.data)
+    } catch (e) {}
+
     return { success: true }
   }
 
@@ -84,6 +94,7 @@ export function AppProvider({ children }) {
     localStorage.removeItem('traveloop_user')
     localStorage.removeItem('traveloop_auth')
     setUser(null)
+    setPreferences(null)
     setIsAuthenticated(false)
   }
 
@@ -100,6 +111,7 @@ export function AppProvider({ children }) {
       sidebarOpen, setSidebarOpen, toggleSidebar,
       activeTrip, setActiveTrip,
       theme, toggleTheme,
+      preferences, setPreferences,
     }}>
       {children}
     </AppContext.Provider>

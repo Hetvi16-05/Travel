@@ -5,13 +5,13 @@ import {
 } from 'lucide-react'
 import DashboardLayout from '../components/layout/DashboardLayout'
 import api from '../lib/api'
-import { aiSuggestions } from '../data/mockData'
+import { MapWidget } from '../components/widgets/MapWidget'
+import RecommendedCities from '../components/widgets/RecommendedCities'
 import { useApp } from '../context/AppContext'
 import { StatsWidget } from '../components/widgets/StatsWidget'
 import { BudgetChart } from '../components/widgets/BudgetChart'
 import { WeatherWidget } from '../components/widgets/WeatherWidget'
 import { TrendingDestinations } from '../components/widgets/TrendingDestinations'
-import { MapWidget } from '../components/widgets/MapWidget'
 
 
 export default function Dashboard() {
@@ -91,6 +91,7 @@ export default function Dashboard() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/trips/create')}
             className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-600 text-white font-medium flex items-center gap-2 shadow-glow transition-colors"
           >
             <Plus size={18} />
@@ -111,46 +112,15 @@ export default function Dashboard() {
           <motion.div variants={item}><StatsWidget title="AI Savings" value={`₹${stats.savings.toLocaleString()}`} icon={Wallet} trend="up" trendValue="Live Data" /></motion.div>
         </motion.div>
 
-
-        {/* Middle Row: AI, Chart, Weather */}
+        {/* Middle Row: AI Recommendations */}
         <motion.div 
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 gap-6"
         >
-          {/* AI Assistant */}
-          <motion.div variants={item} className="lg:col-span-1">
-            <div className="h-full rounded-3xl p-6 relative overflow-hidden group border border-primary/30 bg-gradient-to-br from-primary-900/40 to-violet-900/20 backdrop-blur-xl">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
-              <div className="relative z-10 space-y-4 flex flex-col h-full">
-                <div className="flex items-center gap-2 text-primary-400">
-                  <Sparkles size={20} className="animate-pulse" />
-                  <span className="font-bold text-sm">AI Copilot</span>
-                </div>
-                <h3 className="text-xl font-bold text-white">Let's build your dream itinerary.</h3>
-                <p className="text-sm text-white/60 leading-relaxed mb-4">
-                  I can find hidden gems, optimize routes, and manage your budget automatically.
-                </p>
-                <div className="space-y-2 flex-1">
-                  {aiSuggestions.slice(0, 3).map((s, i) => (
-                    <button key={i} className="w-full text-left p-3 rounded-xl bg-black/20 hover:bg-black/40 border border-white/5 text-xs text-white/70 transition-all">
-                      "{s}"
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Budget Chart */}
-          <motion.div variants={item} className="lg:col-span-1">
-             <BudgetChart />
-          </motion.div>
-
-          {/* Weather Widget */}
-          <motion.div variants={item} className="lg:col-span-1">
-            <WeatherWidget />
+          <motion.div variants={item}>
+             <RecommendedCities />
           </motion.div>
         </motion.div>
 

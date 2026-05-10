@@ -36,4 +36,24 @@ const getStats = asyncHandler(async (req, res) => {
   res.json({ success: true, data: stats });
 });
 
-module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination, getStats };
+const getPreferences = asyncHandler(async (req, res) => {
+  const prefs = await usersService.getPreferences(req.user.id);
+  res.json({ success: true, data: prefs });
+});
+
+const updatePreferences = asyncHandler(async (req, res) => {
+  const prefs = await usersService.updatePreferences(req.user.id, req.body);
+  res.json({ success: true, data: prefs });
+});
+
+module.exports = { 
+  getMe, 
+  updateMe, 
+  deleteMe, 
+  getSavedDestinations, 
+  saveDestination, 
+  unsaveDestination, 
+  getStats,
+  getPreferences,
+  updatePreferences
+};

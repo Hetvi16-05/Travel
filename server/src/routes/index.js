@@ -13,6 +13,7 @@ const shareRoutes      = require('../modules/share/share.routes');
 const adminRoutes      = require('../modules/admin/admin.routes');
 const savedDestinationsRoutes = require('../modules/saved_destinations/saved_destinations.routes');
 const aiRoutes         = require('../modules/ai/ai.routes');
+const recommendationsRoutes = require('../modules/recommendations/recommendations.routes');
 
 
 const router = Router();
@@ -34,11 +35,11 @@ router.use('/saved-destinations', savedDestinationsRoutes);
 
 
 // Trips + nested resources
-router.use('/trips', tripsRoutes);
 router.use('/trips/:tripId/stops',     stopsRoutes);
 router.use('/trips/:tripId/budget',    budgetRoutes);
 router.use('/trips/:tripId/checklist', checklistRoutes);
 router.use('/trips/:tripId/notes',     notesRoutes);
+router.use('/trips',                   tripsRoutes);
 
 // Activity catalog
 router.use('/activities', activitiesRoutes);
@@ -51,5 +52,8 @@ router.use('/admin', adminRoutes);
 
 // AI Trip Planner
 router.use('/ai', aiRoutes);
+
+// Recommendations
+router.use('/recommendations', recommendationsRoutes);
 
 module.exports = router;

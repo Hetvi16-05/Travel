@@ -1,10 +1,14 @@
 const { Router } = require('express');
-const { plan } = require('./ai.controller');
+const controller = require('./ai.controller');
 const { protect } = require('../../middleware/auth');
 
 const router = Router();
 
-// POST /api/ai/plan — protected
-router.post('/plan', protect, plan);
+router.use(protect);
+
+router.post('/plan', controller.plan);
+router.post('/chat/:tripId', controller.chat);
+router.get('/history/:tripId', controller.getHistory);
+router.delete('/history/:tripId', controller.clearHistory);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const { query } = require('../../config/db');
 const ApiError = require('../../utils/ApiError');
 const { generateShareToken } = require('../../utils/helpers');
 const aiService = require('../ai/ai.service');
+const { updateCooccurrence } = require('../../utils/updateCooccurrence');
 
 const getAllTrips = async (userId) => {
   const result = await query(
@@ -82,6 +83,9 @@ const createTrip = async (userId, data) => {
     }
   }
 
+  // Update co-occurrence background task
+  updateCooccurrence(newTrip.id).catch(err => console.error('[Intelligence Error]', err.message));
+
   return newTrip;
 };
 
@@ -97,22 +101,34 @@ const autoPopulateTrip = async (trip) => {
   if (!cityRes.rows[0]) return;
   const city = cityRes.rows[0];
 
-  // 2. Determine duration (default 3 days)
-  let days = 3;
+  // 2. Determine duration
+  let days = 1;
   if (trip.start_date && trip.end_date) {
     const start = new Date(trip.start_date);
     const end = new Date(trip.end_date);
-    days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1);
+    if (!isNaN(start) && !isNaN(end)) {
+      days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1);
+    }
   }
-  days = Math.min(days, 10); // Cap at 10 for auto-pop
+  days = Math.min(days, 14); // Cap at 14 for auto-pop
 
   // 3. Get activities for this city
   const actRes = await query(
-    'SELECT id, name, description, category, price_est FROM activity_catalog WHERE city_id = $1 ORDER BY RANDOM() LIMIT $2',
-    [city.id, days * 3]
+    'SELECT id, name, description, category, price_est FROM activity_catalog WHERE city_id = $1 ORDER BY RANDOM() LIMIT 50',
+    [city.id]
   );
-  const pool = actRes.rows;
-  if (pool.length === 0) return;
+  
+  let pool = actRes.rows;
+  if (pool.length === 0) {
+    pool = [
+      { id: null, name: 'Local Exploration', description: 'Discover the charm of the city streets.', category: 'Sightseeing', price_est: 0 },
+      { id: null, name: 'Cultural Walk', description: 'Immerse yourself in the local heritage.', category: 'Culture', price_est: 0 },
+      { id: null, name: 'Dining Experience', description: 'Enjoy local delicacies at a top-rated spot.', category: 'Dining', price_est: 30 }
+    ];
+  }
+
+  // Shuffle the pool
+  pool = pool.sort(() => Math.random() - 0.5);
 
   // 4. Create stops and activities
   for (let d = 1; d <= days; d++) {
@@ -122,10 +138,13 @@ const autoPopulateTrip = async (trip) => {
     );
     const stopId = stopRes.rows[0].id;
 
-    // Pick 3 activities for this day
-    const dayActs = pool.splice(0, 3);
-    for (let i = 0; i < dayActs.length; i++) {
-      const act = dayActs[i];
+    // Pick 3 activities for this day (cycle through pool with a random offset)
+    const dayOffset = (d * 7) % pool.length; 
+    for (let i = 0; i < 3; i++) {
+      const actIndex = (dayOffset + i) % pool.length;
+      const act = pool[actIndex];
+      if (!act) continue;
+
       const timeSlots = ['09:00:00', '14:00:00', '19:00:00'];
       await query(
         'INSERT INTO stop_activities (stop_id, activity_id, time_slot, order_index) VALUES ($1, $2, $3, $4)',
@@ -142,7 +161,7 @@ const updateTrip = async (tripId, userId, data) => {
 
   const allowed = [
     'title', 'description', 'destination', 'start_date', 'end_date', 
-    'currency', 'budget', 'status', 'mood', 'is_public', 'cover_image'
+    'currency', 'budget', 'status', 'mood', 'is_public', 'cover_image', 'payment_status'
   ];
   allowed.forEach((key) => {
     if (data[key] !== undefined) {
@@ -239,6 +258,9 @@ const aiPopulateTrip = async (tripId, userId) => {
       );
     }
   }
+
+  // Update co-occurrence background task
+  updateCooccurrence(tripId).catch(err => console.error('[Intelligence Error]', err.message));
 
   return { success: true };
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Compass, MapPin } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { DestinationCard } from '../components/explore/DestinationCard';
@@ -9,11 +10,20 @@ import api from '../lib/api';
 import { Loader } from '../components/ui/Loader';
 
 export default function Explore() {
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [destinations, setDestinations] = useState([]);
   const [activities, setActivities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const city = params.get('city');
+    if (city) {
+      setSearchQuery(city);
+    }
+  }, [location]);
 
   useEffect(() => {
     const fetchExploreData = async () => {

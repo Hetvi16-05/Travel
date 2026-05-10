@@ -1,32 +1,34 @@
-const { generatePlan } = require('./ai.service');
+const aiService = require('./ai.service');
 const ApiError = require('../../utils/ApiError');
+const asyncHandler = require('../../utils/asyncHandler');
 
-/**
- * POST /api/ai/plan
- * Body: { message: string, history: Array<{role, content}> }
- */
-async function plan(req, res, next) {
-  try {
-    const { message, history = [] } = req.body;
+const plan = asyncHandler(async (req, res) => {
+  const { message, history = [] } = req.body;
+  if (!message) throw ApiError.badRequest('Message is required');
+  
+  const result = await aiService.generatePlan(message.trim(), history);
+  res.json({ success: true, data: result });
+});
 
-    if (!message || typeof message !== 'string' || !message.trim()) {
-      return next(ApiError.badRequest('Message is required'));
-    }
+const chat = asyncHandler(async (req, res) => {
+  const { tripId } = req.params;
+  const { message } = req.body;
+  if (!message) throw ApiError.badRequest('Message is required');
 
-    if (message.trim().length > 500) {
-      return next(ApiError.badRequest('Message too long (max 500 chars)'));
-    }
+  const result = await aiService.chat(tripId, req.user.id, message);
+  res.json({ success: true, data: result });
+});
 
-    const result = await generatePlan(message.trim(), history);
+const getHistory = asyncHandler(async (req, res) => {
+  const { tripId } = req.params;
+  const history = await aiService.getHistory(tripId, req.user.id);
+  res.json({ success: true, data: history });
+});
 
-    return res.json({
-      success: true,
-      data: result,
-    });
-  } catch (err) {
-    console.error('[AI Plan Error]', err.message);
-    next(err);
-  }
-}
+const clearHistory = asyncHandler(async (req, res) => {
+  const { tripId } = req.params;
+  await aiService.clearHistory(tripId, req.user.id);
+  res.json({ success: true, message: 'History cleared' });
+});
 
-module.exports = { plan };
+module.exports = { plan, chat, getHistory, clearHistory };

@@ -113,7 +113,12 @@ export default function Trips() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {filteredTrips.map((trip, idx) => (
-                <TripCard key={trip.id} trip={trip} index={idx} />
+                <TripCard 
+                  key={trip.id} 
+                  trip={trip} 
+                  index={idx} 
+                  onDeleteSuccess={(id) => setTrips(prev => prev.filter(t => t.id !== id))}
+                />
               ))}
             </motion.div>
           ) : (

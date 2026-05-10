@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { CalendarDays, Plus } from 'lucide-react';
 import { ActivityCard } from './ActivityCard';
 import { TransportConnector } from './TransportConnector';
+import ActivitySuggestions from './ActivitySuggestions';
 
-export function DayCard({ day }) {
+export function DayCard({ day, onActivityAdded }) {
   return (
     <div className="relative pl-6 pb-12 last:pb-0">
       {/* Vertical Timeline Line */}
@@ -44,6 +45,9 @@ export function DayCard({ day }) {
           }
           return <ActivityCard key={idx} activity={item} />;
         })}
+
+        {/* Intelligence Layer */}
+        <ActivitySuggestions stopId={day.id} onAdd={onActivityAdded} />
       </div>
     </div>
   );

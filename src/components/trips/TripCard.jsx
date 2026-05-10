@@ -1,15 +1,28 @@
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, MoreVertical, Compass, CreditCard, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, MoreVertical, Compass, CreditCard, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../lib/api';
 
 const PAYMENT_BADGE = {
   paid:   { label: 'Paid',     icon: CheckCircle2, cls: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' },
   unpaid: { label: 'Pay Now',  icon: AlertCircle,  cls: 'bg-amber-500/15  border-amber-500/30  text-amber-400'   },
 };
 
-export function TripCard({ trip, index }) {
+export function TripCard({ trip, index, onDeleteSuccess }) {
   const navigate = useNavigate();
-  const payment  = PAYMENT_BADGE[trip.paymentStatus];
+  const payment  = PAYMENT_BADGE[trip.payment_status];
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete your trip to ${trip.destination || trip.title}?`)) {
+      try {
+        await api.trips.delete(trip.id);
+        onDeleteSuccess && onDeleteSuccess(trip.id);
+      } catch (err) {
+        alert('Failed to delete trip: ' + err.message);
+      }
+    }
+  };
 
   return (
     <motion.div
@@ -50,6 +63,14 @@ export function TripCard({ trip, index }) {
               onClick={e => { e.stopPropagation(); navigate(`/trips/${trip.id}/edit`); }}
             >
               <MoreVertical size={14} />
+            </button>
+
+            {/* Delete button */}
+            <button
+              className="w-8 h-8 rounded-full bg-red-500/20 backdrop-blur-md border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500/40 hover:text-red-300 transition-colors"
+              onClick={handleDelete}
+            >
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
@@ -100,12 +121,12 @@ export function TripCard({ trip, index }) {
         </div>
 
         {/* ── Pay Now CTA (only for unpaid trips) ── */}
-        {trip.paymentStatus === 'unpaid' && (
+        {trip.payment_status === 'unpaid' && (
           <button
             id={`pay-trip-${trip.id}-btn`}
             onClick={e => {
               e.stopPropagation();
-              navigate('/payment');
+              navigate(`/trips/${trip.id}/payment`);
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-semibold hover:bg-amber-500/20 hover:border-amber-400/50 transition-all group/pay"
           >
@@ -115,12 +136,12 @@ export function TripCard({ trip, index }) {
         )}
 
         {/* ── View Invoice link (for paid trips) ── */}
-        {trip.paymentStatus === 'paid' && (
+        {trip.payment_status === 'paid' && (
           <button
             id={`invoice-trip-${trip.id}-btn`}
             onClick={e => {
               e.stopPropagation();
-              navigate('/invoice');
+              navigate(`/trips/${trip.id}/invoice`);
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.07] text-white/40 text-sm font-medium hover:bg-white/[0.06] hover:text-white/70 transition-all"
           >

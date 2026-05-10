@@ -83,4 +83,36 @@ const getUserStats = async (userId) => {
   };
 };
 
-module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination, getUserStats };
+const getPreferences = async (userId) => {
+  const result = await query('SELECT * FROM user_preferences WHERE user_id = $1', [userId]);
+  return result.rows[0];
+};
+
+const updatePreferences = async (userId, data) => {
+  const { preferred_budget, travel_style, preferred_group, home_country, onboarding_done } = data;
+  const result = await query(`
+    INSERT INTO user_preferences (user_id, preferred_budget, travel_style, preferred_group, home_country, onboarding_done)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT (user_id) DO UPDATE SET
+      preferred_budget = EXCLUDED.preferred_budget,
+      travel_style = EXCLUDED.travel_style,
+      preferred_group = EXCLUDED.preferred_group,
+      home_country = EXCLUDED.home_country,
+      onboarding_done = EXCLUDED.onboarding_done,
+      updated_at = NOW()
+    RETURNING *
+  `, [userId, preferred_budget, travel_style, preferred_group, home_country, onboarding_done]);
+  return result.rows[0];
+};
+
+module.exports = { 
+  getMe, 
+  updateMe, 
+  deleteMe, 
+  getSavedDestinations, 
+  saveDestination, 
+  unsaveDestination, 
+  getUserStats,
+  getPreferences,
+  updatePreferences
+};

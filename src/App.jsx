@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AppProvider, useApp } from './context/AppContext'
@@ -180,7 +181,7 @@ function AppRoutes() {
         } 
       />
       <Route 
-        path="/invoice" 
+        path="/trips/:id/invoice" 
         element={
           <ProtectedRoute>
             <Invoice />
@@ -188,7 +189,7 @@ function AppRoutes() {
         } 
       />
       <Route 
-        path="/payment" 
+        path="/trips/:id/payment" 
         element={
           <ProtectedRoute>
             <Payment />
@@ -201,22 +202,51 @@ function AppRoutes() {
   )
 }
 
+import OnboardingModal from './components/onboarding/OnboardingModal'
+
+function AppWrapper() {
+  const { isAuthenticated, preferences, setPreferences } = useApp()
+  const [showOnboarding, setShowOnboarding] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated && preferences && !preferences.onboarding_done) {
+      setShowOnboarding(true)
+    } else {
+      setShowOnboarding(false)
+    }
+  }, [isAuthenticated, preferences])
+
+  return (
+    <>
+      <AppRoutes />
+      {showOnboarding && (
+        <OnboardingModal 
+          onComplete={() => {
+            setShowOnboarding(false)
+            setPreferences(prev => ({ ...prev, onboarding_done: true }))
+          }} 
+        />
+      )}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#1E293B',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px',
+          },
+        }}
+      />
+    </>
+  )
+}
+
 function App() {
   return (
     <AppProvider>
       <Router>
-        <AppRoutes />
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1E293B',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '16px',
-            },
-          }}
-        />
+        <AppWrapper />
       </Router>
     </AppProvider>
   )

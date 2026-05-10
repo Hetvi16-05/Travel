@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download, Plus, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { DayCard } from '../components/itinerary/DayCard';
 import { Button } from '../components/ui/Button';
 import api from '../lib/api';
 import { Loader } from '../components/ui/Loader';
 import { toast } from 'react-hot-toast';
+import PlannerPanel from '../components/itinerary/PlannerPanel';
 
 export default function ItineraryBuilder() {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export default function ItineraryBuilder() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const fetchTrip = async () => {
-    setIsLoading(true);
+    setIsLoading(false); // Only set loading on first load
     try {
       const response = await api.trips.getById(id);
       setTrip(response.data);
@@ -31,6 +32,7 @@ export default function ItineraryBuilder() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     fetchTrip();
   }, [id]);
 
@@ -52,7 +54,6 @@ export default function ItineraryBuilder() {
     if (!cityName) return;
     
     try {
-      // First search for the city to get its ID
       const cityRes = await api.cities.search(cityName);
       if (!cityRes.data || cityRes.data.length === 0) {
         toast.error('City not found in our database');
@@ -67,7 +68,7 @@ export default function ItineraryBuilder() {
       });
       
       toast.success(`Added ${city.name} to your itinerary!`);
-      fetchTrip(); // Refresh data
+      fetchTrip();
     } catch (err) {
       toast.error(err.message);
     }
@@ -98,7 +99,6 @@ export default function ItineraryBuilder() {
     );
   }
 
-  // Format dates for display
   const formatDateRange = () => {
     if (!trip.start_date) return 'Flexible Dates';
     const start = new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -107,18 +107,22 @@ export default function ItineraryBuilder() {
     return `${start} - ${end}`;
   };
 
-  // Convert database stops to the format expected by DayCard if necessary
   const formattedDays = trip.stops?.length > 0 ? trip.stops.map(stop => {
     const dayDate = new Date(trip.start_date);
     dayDate.setDate(dayDate.getDate() + (stop.day_number - 1));
     
     return {
+      id: stop.id,
       day: stop.day_number,
       date: dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       city: stop.city?.name || 'Unknown City',
       items: stop.activities || []
     };
   }) : [];
+
+  const handleActivityAdded = () => {
+    fetchTrip();
+  };
 
   return (
     <DashboardLayout>
@@ -158,7 +162,7 @@ export default function ItineraryBuilder() {
             <div className="max-w-2xl mx-auto space-y-8 pb-32">
               {formattedDays.length > 0 ? (
                 formattedDays.map((day) => (
-                  <DayCard key={day.day} day={day} />
+                  <DayCard key={day.id} day={day} onActivityAdded={handleActivityAdded} />
                 ))
               ) : (
                 <div className="text-center py-20 bg-white/[0.02] rounded-[3rem] border border-dashed border-white/10 relative overflow-hidden group">
@@ -231,6 +235,9 @@ export default function ItineraryBuilder() {
             </div>
           </div>
         </div>
+
+        {/* Floating AI Panel */}
+        <PlannerPanel tripId={id} onUpdate={fetchTrip} />
       </div>
     </DashboardLayout>
   );

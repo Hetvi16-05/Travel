@@ -70,6 +70,8 @@ export const usersApi = {
   updateMe: (data) => request('PATCH', '/users/me', data),
   getSavedDestinations: () => request('GET', '/users/me/saved'),
   getStats: () => request('GET', '/users/me/stats'),
+  getPreferences: () => request('GET', '/users/me/preferences'),
+  updatePreferences: (data) => request('PATCH', '/users/me/preferences', data),
 }
 
 // ─── Trips ────────────────────────────────────────────────────
@@ -116,13 +118,24 @@ export const shareApi = {
 
 // ─── AI Planner ───────────────────────────────────────────────
 export const aiApi = {
-  /**
-   * Generate an AI trip plan
-   * @param {string} message — user's natural language query
-   * @param {Array}  history — previous messages for context [{role, content}]
-   */
   plan: (message, history = []) =>
     request('POST', '/ai/plan', { message, history }),
+    
+  chat: (tripId, message) =>
+    request('POST', `/ai/chat/${tripId}`, { message }),
+    
+  getHistory: (tripId) =>
+    request('GET', `/ai/history/${tripId}`),
+    
+  clearHistory: (tripId) =>
+    request('DELETE', `/ai/history/${tripId}`),
+}
+
+// ─── Recommendations ──────────────────────────────────────────
+export const recommendationsApi = {
+  getCities: () => request('GET', '/recommendations/cities'),
+  getActivities: (stopId) => request('GET', `/recommendations/activities/${stopId}`),
+  getNextCity: (tripId) => request('GET', `/recommendations/next-city/${tripId}`),
 }
 
 // Default export for unified access
@@ -134,6 +147,7 @@ const api = {
   activities: activitiesApi,
   share: shareApi,
   ai: aiApi,
+  recommendations: recommendationsApi,
 };
 
 export default api;

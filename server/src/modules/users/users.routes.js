@@ -16,4 +16,7 @@ router.get('/me/saved',              controller.getSavedDestinations);
 router.post('/me/saved/:cityId',     controller.saveDestination);
 router.delete('/me/saved/:cityId',   controller.unsaveDestination);
 
+router.get('/me/preferences',        controller.getPreferences);
+router.patch('/me/preferences',      controller.updatePreferences);
+
 module.exports = router;
