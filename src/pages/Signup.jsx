@@ -4,22 +4,38 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, Sparkles, CheckCircle2 } from 'lucide-react';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Button } from '../components/ui/Button';
+import { useApp } from '../context/AppContext';
+
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { register } = useApp();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+
 
   const isPasswordValid = formData.password.length >= 8;
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
     setIsLoading(true);
-    setTimeout(() => {
-      navigate('/login');
-    }, 1500);
+    setError('');
+    try {
+      await register(formData.name, formData.email, formData.password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Failed to create account');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -43,7 +59,19 @@ export default function Signup() {
           <p className="text-white/50">Start your AI-powered travel journey today.</p>
         </motion.div>
 
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+            {error}
+          </motion.div>
+        )}
+
         <form onSubmit={handleSignup} className="space-y-5">
+
           <motion.div variants={itemVariants} className="relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <User size={18} />

@@ -1,23 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Filter, LayoutGrid, List } from 'lucide-react';
+import { Search, Plus, Filter, LayoutGrid, List, AlertCircle } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { mockTrips } from '../data/mockData';
+import api from '../lib/api';
 import { TripCard } from '../components/trips/TripCard';
 import { Button } from '../components/ui/Button';
+import { Loader } from '../components/ui/Loader';
 
 export default function Trips() {
   const navigate = useNavigate();
+  const [trips, setTrips] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-
   const filters = ['All', 'Upcoming', 'Completed', 'Drafts'];
 
-  const filteredTrips = mockTrips.filter(trip => {
-    if (filter !== 'All' && trip.status.toLowerCase() !== filter.toLowerCase()) return false;
-    if (searchQuery && !trip.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const response = await api.trips.getAll();
+        setTrips(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTrips();
+  }, []);
+
+  const filteredTrips = trips.filter(trip => {
+    const statusMatch = filter === 'All' || trip.status?.toLowerCase() === filter.toLowerCase();
+    const searchMatch = !searchQuery || trip.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return statusMatch && searchMatch;
   });
 
   return (
@@ -73,10 +91,25 @@ export default function Trips() {
           </div>
         </div>
 
-        {/* Grid */}
+        {/* Content */}
         <AnimatePresence mode="popLayout">
-          {filteredTrips.length > 0 ? (
+          {isLoading ? (
+            <div className="py-20 flex flex-col items-center justify-center space-y-4">
+              <Loader size="lg" />
+              <p className="text-white/50 animate-pulse">Loading your trips...</p>
+            </div>
+          ) : error ? (
+            <div className="py-20 text-center border border-red-500/10 rounded-[2rem] bg-red-500/5">
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-red-400">
+                <AlertCircle size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Failed to load trips</h3>
+              <p className="text-white/50 mb-6">{error}</p>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
+            </div>
+          ) : filteredTrips.length > 0 ? (
             <motion.div 
+              key="grid"
               layout
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
@@ -86,6 +119,7 @@ export default function Trips() {
             </motion.div>
           ) : (
             <motion.div 
+              key="empty"
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

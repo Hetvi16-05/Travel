@@ -11,15 +11,21 @@ export default function Login() {
   const { login } = useApp();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      login({ name: 'Sharan', email: 'hello@traveloop.com' });
+    setError('');
+    try {
+      await login(formData.email, formData.password);
       navigate('/dashboard');
-    }, 1500);
+    } catch (err) {
+      setError(err.message || 'Invalid email or password');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -68,7 +74,19 @@ export default function Login() {
           <div className="flex-1 h-px bg-white/10"></div>
         </motion.div>
 
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+            {error}
+          </motion.div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-5">
+
           <motion.div variants={itemVariants} className="relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none group-focus-within:text-primary-400 transition-colors">
               <Mail size={18} />
@@ -77,7 +95,10 @@ export default function Login() {
               type="email" 
               required
               placeholder="Email address"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
+
             />
           </motion.div>
 
@@ -89,7 +110,10 @@ export default function Login() {
               type={showPassword ? 'text' : 'password'} 
               required
               placeholder="Password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 outline-none focus:bg-white/10 focus:border-primary/50 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] transition-all"
+
             />
             <button 
               type="button"

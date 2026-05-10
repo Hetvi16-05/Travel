@@ -32,6 +32,25 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // ─── API Routes ───────────────────────────────────────────
 app.use('/api', router);
 
+// ─── Welcome Routes ───────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Welcome to Traveloop API',
+    version: '1.0.0',
+    docs: '/api'
+  });
+});
+
+app.get('/api', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Traveloop API v1 — All systems operational',
+    endpoints: ['/auth', '/trips', '/cities', '/activities', '/saved-destinations']
+  });
+});
+
+
 // ─── 404 Handler ──────────────────────────────────────────
 app.use((req, res, next) => {
   next(ApiError.notFound(`Route ${req.method} ${req.path} not found`));

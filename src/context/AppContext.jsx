@@ -1,19 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import api from '../lib/api'
 
 const AppContext = createContext(null)
-
-export const mockUser = {
-  id: 1,
-  name: 'Aryan Sharma',
-  email: 'aryan@traveloop.ai',
-  avatar: null,
-  country: 'India',
-  tripsCount: 12,
-  citiesVisited: 28,
-  totalKm: 45200,
-  memberSince: '2023',
-  preferences: { currency: 'INR', language: 'English', theme: 'dark' },
-}
 
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -21,24 +9,45 @@ export function AppProvider({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeTrip, setActiveTrip] = useState(null)
   const [theme, setTheme] = useState('dark')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const savedAuth = localStorage.getItem('traveloop_auth')
-    if (savedAuth) {
-      setUser(mockUser)
-      setIsAuthenticated(true)
+    const checkAuth = async () => {
+      const token = localStorage.getItem('traveloop_token')
+      if (token) {
+        try {
+          const response = await api.auth.getMe()
+          setUser(response.data)
+          setIsAuthenticated(true)
+        } catch (error) {
+          localStorage.removeItem('traveloop_token')
+        }
+      }
+      setIsLoading(false)
     }
+    checkAuth()
   }, [])
 
-  const login = (email, password) => {
-    localStorage.setItem('traveloop_auth', 'true')
-    setUser(mockUser)
+  const login = async (email, password) => {
+    const response = await api.auth.login({ email, password })
+    const { token, user: userData } = response.data
+    localStorage.setItem('traveloop_token', token)
+    setUser(userData)
+    setIsAuthenticated(true)
+    return true
+  }
+
+  const register = async (name, email, password) => {
+    const response = await api.auth.register({ name, email, password })
+    const { token, user: userData } = response.data
+    localStorage.setItem('traveloop_token', token)
+    setUser(userData)
     setIsAuthenticated(true)
     return true
   }
 
   const logout = () => {
-    localStorage.removeItem('traveloop_auth')
+    localStorage.removeItem('traveloop_token')
     setUser(null)
     setIsAuthenticated(false)
   }
@@ -51,10 +60,11 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      user, setUser, isAuthenticated, login, logout,
+      user, setUser, isAuthenticated, login, register, logout,
       sidebarOpen, setSidebarOpen, toggleSidebar,
       activeTrip, setActiveTrip,
       theme, toggleTheme,
+      isLoading,
     }}>
       {children}
     </AppContext.Provider>

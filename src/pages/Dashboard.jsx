@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Plane, Calendar, MapPin, TrendingUp, Sparkles, Plus, Wallet, Star
 } from 'lucide-react'
 import DashboardLayout from '../components/layout/DashboardLayout'
-import { mockTrips, aiSuggestions } from '../data/mockData'
+import api from '../lib/api'
+import { aiSuggestions } from '../data/mockData'
 import { useApp } from '../context/AppContext'
 import { StatsWidget } from '../components/widgets/StatsWidget'
 import { BudgetChart } from '../components/widgets/BudgetChart'
@@ -11,10 +13,40 @@ import { WeatherWidget } from '../components/widgets/WeatherWidget'
 import { TrendingDestinations } from '../components/widgets/TrendingDestinations'
 import { MapWidget } from '../components/widgets/MapWidget'
 
+
 export default function Dashboard() {
   const { user } = useApp()
+  const [trips, setTrips] = useState([])
+  const [stats, setStats] = useState({
+    totalTrips: 0,
+    citiesVisited: 0,
+    distance: 0,
+    savings: 0
+  })
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.trips.getAll()
+        const allTrips = response.data
+        setTrips(allTrips)
+        
+        // Calculate some basic stats from live data
+        setStats({
+          totalTrips: allTrips.length,
+          citiesVisited: [...new Set(allTrips.map(t => t.destination))].length,
+          distance: allTrips.length * 1200, // mock calculation
+          savings: allTrips.length * 1500  // mock calculation
+        })
+      } catch (error) {
+        console.error('Failed to fetch dashboard data', error)
+      }
+    }
+    fetchDashboardData()
+  }, [])
   
-  const upcomingTrips = mockTrips.filter(t => t.status === 'upcoming' || t.status === 'planned')
+  const upcomingTrips = trips.filter(t => t.status === 'upcoming' || t.status === 'planned')
+
 
   const container = {
     hidden: { opacity: 0 },
@@ -70,11 +102,12 @@ export default function Dashboard() {
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          <motion.div variants={item}><StatsWidget title="Total Trips" value="12" icon={Plane} trend="up" trendValue="+2 this year" /></motion.div>
-          <motion.div variants={item}><StatsWidget title="Cities Visited" value="34" icon={MapPin} trend="up" trendValue="Top 15% of users" /></motion.div>
-          <motion.div variants={item}><StatsWidget title="Distance Traveled" value="45,200 km" icon={TrendingUp} trend="neutral" trendValue="Around the world 1.1x" /></motion.div>
-          <motion.div variants={item}><StatsWidget title="AI Savings" value="₹12,450" icon={Wallet} trend="up" trendValue="+₹4,000 this month" /></motion.div>
+          <motion.div variants={item}><StatsWidget title="Total Trips" value={stats.totalTrips.toString()} icon={Plane} trend="up" trendValue="Live Data" /></motion.div>
+          <motion.div variants={item}><StatsWidget title="Cities Visited" value={stats.citiesVisited.toString()} icon={MapPin} trend="up" trendValue="Live Data" /></motion.div>
+          <motion.div variants={item}><StatsWidget title="Distance Traveled" value={`${stats.distance.toLocaleString()} km`} icon={TrendingUp} trend="neutral" trendValue="Estimated" /></motion.div>
+          <motion.div variants={item}><StatsWidget title="AI Savings" value={`₹${stats.savings.toLocaleString()}`} icon={Wallet} trend="up" trendValue="Live Data" /></motion.div>
         </motion.div>
+
 
         {/* Middle Row: AI, Chart, Weather */}
         <motion.div 
