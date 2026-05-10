@@ -8,9 +8,9 @@ const router = Router();
 
 router.use(protect);
 
-router.get('/me',    controller.getMe);
-router.patch('/me',  validate(updateUserSchema), controller.updateMe);
-router.delete('/me', controller.deleteMe);
+router.get('/me',       controller.getMe);
+router.get('/me/stats', controller.getStats);
+router.patch('/me',     validate(updateUserSchema), controller.updateMe);
 
 router.get('/me/saved',              controller.getSavedDestinations);
 router.post('/me/saved/:cityId',     controller.saveDestination);

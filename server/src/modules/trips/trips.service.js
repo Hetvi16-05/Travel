@@ -51,11 +51,15 @@ const getTripById = async (tripId, userId) => {
 };
 
 const createTrip = async (userId, data) => {
-  const { title, description, start_date, end_date, currency = 'INR', is_public = false } = data;
+  const { 
+    title, description, destination, start_date, end_date, 
+    currency = 'INR', budget = 0, status = 'planned', mood = null, is_public = false 
+  } = data;
+  
   const result = await query(
-    `INSERT INTO trips (user_id, title, description, start_date, end_date, currency, is_public)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [userId, title, description, start_date, end_date, currency, is_public]
+    `INSERT INTO trips (user_id, title, description, destination, start_date, end_date, currency, budget, status, mood, is_public)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    [userId, title, description, destination, start_date, end_date, currency, budget, status, mood, is_public]
   );
   return result.rows[0];
 };
@@ -65,7 +69,10 @@ const updateTrip = async (tripId, userId, data) => {
   const values = [];
   let i = 1;
 
-  const allowed = ['title', 'description', 'start_date', 'end_date', 'currency', 'is_public', 'cover_image'];
+  const allowed = [
+    'title', 'description', 'destination', 'start_date', 'end_date', 
+    'currency', 'budget', 'status', 'mood', 'is_public', 'cover_image'
+  ];
   allowed.forEach((key) => {
     if (data[key] !== undefined) {
       fields.push(`${key} = $${i++}`);

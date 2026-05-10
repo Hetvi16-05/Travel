@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Sparkles, Navigation, Loader2, AlertCircle } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { StepIndicator } from '../components/trips/StepIndicator';
 import { Button } from '../components/ui/Button';
-import { tripsApi } from '../lib/api';
+import api, { tripsApi, citiesApi } from '../lib/api';
 
 const STEPS = ['Destination', 'Vibe', 'Budget', 'Review'];
 
@@ -20,9 +20,11 @@ const MOODS = [
 
 export default function CreateTrip() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
+  const [cityInfo, setCityInfo] = useState(null);
   const [formData, setFormData] = useState({
     destination: '',
     start_date: '',
@@ -30,6 +32,34 @@ export default function CreateTrip() {
     mood: '',
     budget: 50000,
   });
+
+  // Handle query params on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const city = params.get('city');
+    if (city) {
+      setFormData(prev => ({ ...prev, destination: city }));
+    }
+  }, [location]);
+
+  // Fetch city info when destination changes
+  useEffect(() => {
+    if (formData.destination.length > 2) {
+      const timer = setTimeout(async () => {
+        try {
+          const res = await citiesApi.search(formData.destination);
+          if (res?.data?.length > 0) {
+            setCityInfo(res.data[0]);
+          } else {
+            setCityInfo(null);
+          }
+        } catch (err) {
+          console.error('Search failed', err);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [formData.destination]);
 
   const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
@@ -49,7 +79,7 @@ export default function CreateTrip() {
       };
       const res = await tripsApi.create(payload);
       const newTripId = res?.data?.id;
-      navigate(newTripId ? `/trips/${newTripId}` : '/trips');
+      navigate(newTripId ? `/trips/${newTripId}/itinerary` : '/trips');
     } catch (err) {
       setError(err.message || 'Failed to create trip. Please try again.');
       setIsCreating(false);
@@ -137,6 +167,24 @@ export default function CreateTrip() {
                       />
                     </div>
                   </div>
+
+                  {cityInfo && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 rounded-2xl bg-primary-500/10 border border-primary-500/20 flex gap-4"
+                    >
+                      <img src={cityInfo.image_url} className="w-20 h-20 rounded-xl object-cover" />
+                      <div>
+                        <h4 className="font-bold text-white">{cityInfo.name}, {cityInfo.country}</h4>
+                        <p className="text-xs text-white/50 line-clamp-2 mt-1">{cityInfo.description}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                           <Sparkles size={12} className="text-primary-400" />
+                           <span className="text-[10px] font-bold text-primary-400 uppercase tracking-wider">AI Itinerary Suggestion Ready</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             )}

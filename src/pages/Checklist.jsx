@@ -1,60 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckSquare, Plus, GripVertical, Check, Trash2, Luggage, Sparkles } from 'lucide-react';
+import { CheckSquare, Plus, GripVertical, Check, Trash2, Luggage, Sparkles, AlertCircle } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { Button } from '../components/ui/Button';
+import api from '../lib/api';
+import { Loader } from '../components/ui/Loader';
 
-const initialCategories = [
-  {
-    id: 'essentials',
-    title: 'Essentials',
-    items: [
-      { id: '1', text: 'Passport & Visas', completed: false },
-      { id: '2', text: 'Travel Insurance', completed: true },
-      { id: '3', text: 'Boarding Passes', completed: false },
-      { id: '4', text: 'Wallet & Cash', completed: false },
-    ]
-  },
-  {
-    id: 'electronics',
-    title: 'Electronics',
-    items: [
-      { id: '5', text: 'Phone Charger', completed: true },
-      { id: '6', text: 'Universal Adapter', completed: false },
-      { id: '7', text: 'Power Bank', completed: false },
-      { id: '8', text: 'Noise-canceling Headphones', completed: true },
-    ]
-  },
-  {
-    id: 'clothing',
-    title: 'Clothing (Winter)',
-    items: [
-      { id: '9', text: 'Heavy Coat', completed: false },
-      { id: '10', text: 'Thermal Underwear', completed: false },
-      { id: '11', text: 'Gloves & Beanie', completed: false },
-      { id: '12', text: 'Waterproof Boots', completed: false },
-    ]
-  }
-];
+
+// Removed mock initialCategories
+
 
 export default function Checklist() {
-  const [categories, setCategories] = useState(initialCategories);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [trip, setTrip] = useState(null);
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const toggleItem = (categoryId, itemId) => {
-    setCategories(cats => cats.map(cat => {
-      if (cat.id !== categoryId) return cat;
-      return {
-        ...cat,
-        items: cat.items.map(item => 
-          item.id === itemId ? { ...item, completed: !item.completed } : item
-        )
-      };
-    }));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tripRes, checklistRes] = await Promise.all([
+          api.trips.getById(id),
+          api.trips.getChecklist(id)
+        ]);
+        setTrip(tripRes.data);
+        setItems(checklistRes.data || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (id) fetchData();
+  }, [id]);
+
+  const toggleItem = async (itemId) => {
+    const item = items.find(i => i.id === itemId);
+    setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_completed: !i.is_completed } : i));
+    try {
+      await api.trips.updateChecklistItem(id, itemId, { is_completed: !item.is_completed });
+    } catch (err) {
+      console.error(err);
+      // rollback on error
+      setItems(prev => prev.map(i => i.id === itemId ? { ...i, is_completed: item.is_completed } : i));
+    }
   };
 
-  const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
-  const completedItems = categories.reduce((sum, cat) => sum + cat.items.filter(i => i.completed).length, 0);
+  if (isLoading) return <DashboardLayout><div className="flex justify-center py-20"><Loader size="lg" /></div></DashboardLayout>;
+  if (error) return <DashboardLayout><div className="text-center py-20 text-red-400"><AlertCircle className="mx-auto mb-2" /><p>{error}</p></div></DashboardLayout>;
+
+  // Group items by category
+  const categories = items.reduce((acc, item) => {
+    const cat = item.category || 'Uncategorized';
+    if (!acc[cat]) acc[cat] = { id: cat, title: cat, items: [] };
+    acc[cat].items.push(item);
+    return acc;
+  }, {});
+
+  const categoryList = Object.values(categories);
+  const totalItems = items.length;
+  const completedItems = items.filter(i => i.is_completed).length;
   const progress = totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100);
+
 
   return (
     <DashboardLayout>
@@ -67,9 +77,10 @@ export default function Checklist() {
               <CheckSquare size={16} />
               <span>Packing List</span>
             </div>
-            <h1 className="text-3xl font-display font-bold text-white mb-2">Japan Winter Trip</h1>
+            <h1 className="text-3xl font-display font-bold text-white mb-2">{trip.title}</h1>
             <p className="text-white/50 text-sm">Organize your luggage and essentials.</p>
           </div>
+
           <div className="flex gap-3">
             <button className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors text-sm font-medium">
               <Sparkles size={16} className="mr-2 text-amber-400" /> AI Suggestions
@@ -106,14 +117,15 @@ export default function Checklist() {
 
         {/* Categories */}
         <div className="space-y-8">
-          {categories.map((category) => (
+          {categoryList.map((category) => (
             <div key={category.id} className="bg-[#111827] border border-white/5 rounded-3xl overflow-hidden">
               <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <h3 className="text-lg font-semibold text-white">{category.title}</h3>
                 <span className="text-xs font-medium text-white/40 bg-white/5 px-2 py-1 rounded-lg">
-                  {category.items.filter(i => i.completed).length}/{category.items.length}
+                  {category.items.filter(i => i.is_completed).length}/{category.items.length}
                 </span>
               </div>
+
               <div className="p-2">
                 <AnimatePresence>
                   {category.items.map((item) => (
@@ -130,26 +142,28 @@ export default function Checklist() {
                       </div>
                       
                       <button 
-                        onClick={() => toggleItem(category.id, item.id)}
+                        onClick={() => toggleItem(item.id)}
                         className={`w-6 h-6 rounded-[6px] border flex items-center justify-center transition-all flex-shrink-0 ${
-                          item.completed 
+                          item.is_completed 
                             ? 'bg-primary border-primary text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
                             : 'bg-transparent border-white/20 text-transparent hover:border-white/40'
                         }`}
                       >
                         <motion.div
                           initial={false}
-                          animate={{ scale: item.completed ? 1 : 0 }}
+                          animate={{ scale: item.is_completed ? 1 : 0 }}
                         >
                           <Check size={14} strokeWidth={3} />
                         </motion.div>
                       </button>
+
                       
                       <span className={`flex-1 text-[15px] transition-all duration-300 ${
-                        item.completed ? 'text-white/30 line-through' : 'text-white/90'
+                        item.is_completed ? 'text-white/30 line-through' : 'text-white/90'
                       }`}>
-                        {item.text}
+                        {item.task}
                       </span>
+
 
                       <button className="opacity-0 group-hover:opacity-100 p-2 text-white/30 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all">
                         <Trash2 size={16} />

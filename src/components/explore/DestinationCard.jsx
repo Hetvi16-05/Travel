@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
-import { MapPin, Star, Map } from 'lucide-react';
+import { MapPin, Star, Map, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function DestinationCard({ item, index }) {
+  const navigate = useNavigate();
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
+      onClick={() => navigate(`/trips/create?city=${item.title}`)}
       className="group relative rounded-3xl overflow-hidden cursor-pointer bg-[#111827] border border-white/5 h-[300px] hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all"
     >
       <img 
@@ -21,8 +25,13 @@ export function DestinationCard({ item, index }) {
         <span className="text-white text-xs font-bold">{item.rating}</span>
       </div>
 
-      <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity translate-y-[-10px] group-hover:translate-y-0 text-white hover:bg-primary/50">
-        <Map size={14} />
+      <div className="absolute top-4 left-4 flex gap-2">
+        <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity translate-y-[-10px] group-hover:translate-y-0 text-white hover:bg-primary/50">
+          <Map size={14} />
+        </div>
+        <div className="w-8 h-8 rounded-full bg-primary/80 backdrop-blur-md flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity translate-y-[-10px] group-hover:translate-y-0 text-white hover:bg-primary delay-75 shadow-glow">
+          <Plus size={14} />
+        </div>
       </div>
       
       <div className="absolute bottom-5 left-5 right-5">

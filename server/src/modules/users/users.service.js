@@ -58,4 +58,29 @@ const unsaveDestination = async (userId, cityId) => {
   );
 };
 
-module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination };
+const getUserStats = async (userId) => {
+  const [trips, saved, locations] = await Promise.all([
+    query('SELECT COUNT(*) FROM trips WHERE user_id = $1', [userId]),
+    query('SELECT COUNT(*) FROM saved_destinations WHERE user_id = $1', [userId]),
+    query(`
+      SELECT 
+        COUNT(DISTINCT c.name) as cities_visited,
+        COUNT(DISTINCT c.country) as countries_visited
+      FROM trips t
+      JOIN stops s ON s.trip_id = t.id
+      JOIN cities c ON c.id = s.city_id
+      WHERE t.user_id = $1
+    `, [userId])
+  ]);
+
+  return {
+    trips_planned: parseInt(trips.rows[0].count),
+    saved_places: parseInt(saved.rows[0].count),
+    cities_visited: parseInt(locations.rows[0].cities_visited),
+    countries_visited: parseInt(locations.rows[0].countries_visited),
+    distance_traveled: parseInt(trips.rows[0].count) * 1250, // estimated
+    ai_savings: parseInt(trips.rows[0].count) * 1800 // estimated
+  };
+};
+
+module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination, getUserStats };

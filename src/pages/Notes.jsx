@@ -1,32 +1,65 @@
-import { useState } from 'react';
-import { NotebookPen, Search, MoreHorizontal, Image as ImageIcon, CheckCircle2, Type, List, ListOrdered, Quote } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { NotebookPen, Search, MoreHorizontal, Image as ImageIcon, CheckCircle2, Type, List, ListOrdered, Quote, AlertCircle, Save } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import api from '../lib/api';
+import { Loader } from '../components/ui/Loader';
+import { Button } from '../components/ui/Button';
+import { toast } from 'react-hot-toast';
 
-const SIDEBAR_NOTES = [
-  { id: 1, title: 'Kyoto Itinerary Ideas', date: 'Just now', active: true },
-  { id: 2, title: 'Packing List (Draft)', date: '2 days ago', active: false },
-  { id: 3, title: 'Restaurant Recommendations', date: 'Last week', active: false },
-];
+
+// Removed mock SIDEBAR_NOTES
+
 
 export default function Notes() {
-  const [content, setContent] = useState(`
-# Kyoto Itinerary Ideas
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [trip, setTrip] = useState(null);
+  const [notes, setNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-We need to make sure we hit all the major temples, but also leave time for wandering around Gion. 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tripRes, notesRes] = await Promise.all([
+          api.trips.getById(id),
+          api.trips.getNotes(id)
+        ]);
+        setTrip(tripRes.data);
+        const fetchedNotes = notesRes.data || [];
+        setNotes(fetchedNotes);
+        if (fetchedNotes.length > 0) setSelectedNote(fetchedNotes[0]);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (id) fetchData();
+  }, [id]);
 
-### Must Visit
-- Fushimi Inari Shrine (Go very early!)
-- Kiyomizu-dera
-- Arashiyama Bamboo Grove
+  const handleSaveNote = async () => {
+    if (!selectedNote) return;
+    setIsSaving(true);
+    try {
+      await api.trips.updateNote(id, selectedNote.id, {
+        title: selectedNote.title,
+        content: selectedNote.content
+      });
+      toast.success('Note saved');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-### Food to Try
-1. Matcha ice cream near Uji
-2. Kaiseki dinner in Gion
-3. Ramen at Kyoto station
+  if (isLoading) return <DashboardLayout><div className="flex justify-center py-20"><Loader size="lg" /></div></DashboardLayout>;
+  if (error) return <DashboardLayout><div className="text-center py-20 text-red-400"><AlertCircle className="mx-auto mb-2" /><p>{error}</p></div></DashboardLayout>;
 
-> "Kyoto is the heart of Japan's traditions." 
-> Remember to bring the good camera for the autumn leaves!
-  `);
 
   return (
     <DashboardLayout>
@@ -51,20 +84,25 @@ We need to make sure we hit all the major temples, but also leave time for wande
             </div>
           </div>
           <div className="flex-1 overflow-y-auto scrollbar-none p-2 space-y-1">
-            {SIDEBAR_NOTES.map(note => (
+            {notes.map(note => (
               <button 
                 key={note.id}
+                onClick={() => setSelectedNote(note)}
                 className={`w-full text-left p-3 rounded-xl transition-colors ${
-                  note.active 
+                  selectedNote?.id === note.id 
                     ? 'bg-primary/20 border border-primary/30 text-white' 
                     : 'hover:bg-white/5 border border-transparent text-white/60'
                 }`}
               >
                 <h4 className="font-medium text-sm truncate">{note.title}</h4>
-                <p className={`text-xs mt-1 ${note.active ? 'text-primary-300' : 'text-white/30'}`}>{note.date}</p>
+                <p className={`text-xs mt-1 ${selectedNote?.id === note.id ? 'text-primary-300' : 'text-white/30'}`}>{new Date(note.updated_at).toLocaleDateString()}</p>
               </button>
             ))}
+            {notes.length === 0 && (
+              <p className="text-center py-10 text-white/20 text-xs">No notes yet.</p>
+            )}
           </div>
+
         </div>
 
         {/* Editor Area */}
@@ -81,13 +119,14 @@ We need to make sure we hit all the major temples, but also leave time for wande
             </div>
             <div className="flex items-center gap-4 pl-4 shrink-0">
               <span className="text-xs text-white/30 flex items-center gap-1">
-                <CheckCircle2 size={12} className="text-emerald-500" /> Saved
+                {isSaving ? <Loader size="xs" /> : <CheckCircle2 size={12} className="text-emerald-500" />} {isSaving ? 'Saving...' : 'Saved'}
               </span>
-              <button className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:bg-white/10 hover:text-white transition-colors">
-                <MoreHorizontal size={16} />
-              </button>
+              <Button size="sm" onClick={handleSaveNote} isLoading={isSaving}>
+                <Save size={14} className="mr-2" /> Save
+              </Button>
             </div>
           </div>
+
 
           {/* Editor Canvas */}
           <div className="flex-1 overflow-y-auto scrollbar-none p-6 md:p-12 lg:px-24">
@@ -102,15 +141,29 @@ We need to make sure we hit all the major temples, but also leave time for wande
               </div>
 
               {/* Textarea disguised as rich text editor */}
-              <textarea 
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full h-[500px] bg-transparent resize-none border-none outline-none text-white/90 text-lg md:text-xl leading-relaxed placeholder-white/20 scrollbar-none font-sans"
-                placeholder="Start writing your travel journal..."
-              />
+              {selectedNote ? (
+                <>
+                  <input 
+                    type="text"
+                    value={selectedNote.title}
+                    onChange={(e) => setSelectedNote({...selectedNote, title: e.target.value})}
+                    className="w-full bg-transparent border-none outline-none text-3xl font-bold text-white mb-4 placeholder-white/20"
+                    placeholder="Note Title"
+                  />
+                  <textarea 
+                    value={selectedNote.content}
+                    onChange={(e) => setSelectedNote({...selectedNote, content: e.target.value})}
+                    className="w-full h-[500px] bg-transparent resize-none border-none outline-none text-white/90 text-lg md:text-xl leading-relaxed placeholder-white/20 scrollbar-none font-sans"
+                    placeholder="Start writing your travel journal..."
+                  />
+                </>
+              ) : (
+                <div className="text-center py-20 text-white/20">Select or create a note.</div>
+              )}
               
             </div>
           </div>
+
         </div>
 
       </div>

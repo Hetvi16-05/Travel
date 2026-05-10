@@ -27,21 +27,24 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.trips.getAll()
-        const allTrips = response.data
-        setTrips(allTrips)
+        const [tripsRes, statsRes] = await Promise.all([
+          api.trips.getAll(),
+          api.users.getStats()
+        ]);
         
-        // Calculate some basic stats from live data
+        setTrips(tripsRes.data);
+        
+        const liveStats = statsRes.data;
         setStats({
-          totalTrips: allTrips.length,
-          citiesVisited: [...new Set(allTrips.map(t => t.destination))].length,
-          distance: allTrips.length * 1200, // mock calculation
-          savings: allTrips.length * 1500  // mock calculation
-        })
+          totalTrips: liveStats.trips_planned,
+          citiesVisited: liveStats.cities_visited,
+          distance: liveStats.distance_traveled,
+          savings: liveStats.ai_savings
+        });
       } catch (error) {
-        console.error('Failed to fetch dashboard data', error)
+        console.error('Failed to fetch dashboard data', error);
       }
-    }
+    };
     fetchDashboardData()
   }, [])
   

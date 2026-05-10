@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, Plus, Check } from 'lucide-react';
+import { Star, Clock, Plus, Check, Info } from 'lucide-react';
 
 export function ActivityCard({ item, index }) {
   const [added, setAdded] = useState(false);
@@ -10,7 +10,8 @@ export function ActivityCard({ item, index }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.1 }}
-      className="group relative rounded-3xl overflow-hidden cursor-pointer bg-[#111827] border border-white/5"
+      onClick={() => {/* Open details modal or similar */}}
+      className="group relative rounded-3xl overflow-hidden cursor-pointer bg-[#111827] border border-white/5 hover:border-primary/50 transition-all hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]"
     >
       <div className="relative h-48 overflow-hidden">
         <img 
@@ -20,6 +21,12 @@ export function ActivityCard({ item, index }) {
         />
         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
         
+        <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity">
+           <div className="bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 text-white">
+              <Info size={16} />
+           </div>
+        </div>
+
         <button 
           onClick={(e) => {
             e.stopPropagation();
@@ -48,7 +55,7 @@ export function ActivityCard({ item, index }) {
         
         <div className="flex items-center justify-between pt-4 border-t border-white/5">
           <p className="text-white font-bold">
-            ₹{item.price.toLocaleString()} <span className="text-white/40 text-xs font-normal">/ person</span>
+            ₹{(item.price || 0).toLocaleString()} <span className="text-white/40 text-xs font-normal">/ person</span>
           </p>
           <p className="text-white/50 text-xs flex items-center gap-1 font-medium bg-white/5 px-2 py-1 rounded-md border border-white/5">
             <Clock size={12} /> {item.duration}

@@ -1,66 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Compass, MapPin } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { DestinationCard } from '../components/explore/DestinationCard';
 import { ActivityCard } from '../components/explore/ActivityCard';
 import { CategoryFilter } from '../components/explore/CategoryFilter';
-
-const MOCK_DESTINATIONS = [
-  { id: 1, title: 'Kyoto', country: 'Japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop', rating: '4.9' },
-  { id: 2, title: 'Santorini', country: 'Greece', image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac542?q=80&w=800&auto=format&fit=crop', rating: '4.8' },
-  { id: 3, title: 'Bali', country: 'Indonesia', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800&auto=format&fit=crop', rating: '4.7' },
-];
-
-const MOCK_ACTIVITIES = [
-  { 
-    id: 1, category: 'adventure', title: 'Mount Batur Sunrise Trek', 
-    description: 'Hike up an active volcano in time to catch a magnificent sunrise over the clouds.',
-    image: 'https://images.unsplash.com/photo-1535941339077-2dd1c7963098?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.9', price: 4500, duration: '6 hours'
-  },
-  { 
-    id: 2, category: 'food', title: 'Authentic Sushi Making', 
-    description: 'Learn the art of making sushi from a master chef in the heart of Tokyo.',
-    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.8', price: 8500, duration: '3 hours'
-  },
-  { 
-    id: 3, category: 'relaxation', title: 'Blue Lagoon Geothermal Spa', 
-    description: 'Relax in the famous mineral-rich warm waters surrounded by lava fields.',
-    image: 'https://images.unsplash.com/photo-1536142721855-66ea17e4bc4a?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.9', price: 12000, duration: 'Flexible'
-  },
-  { 
-    id: 4, category: 'culture', title: 'Tea Ceremony Experience', 
-    description: 'Experience a traditional Japanese matcha tea ceremony in a historic machiya.',
-    image: 'https://images.unsplash.com/photo-1543325603-99d0c64b4c3e?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.7', price: 3500, duration: '2 hours'
-  },
-  { 
-    id: 5, category: 'adventure', title: 'Scuba Diving at Manta Point', 
-    description: 'Dive with majestic manta rays in crystal clear waters off the coast of Nusa Penida.',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.9', price: 9500, duration: '5 hours'
-  },
-  { 
-    id: 6, category: 'nightlife', title: 'Rooftop Bar Hopping', 
-    description: 'Discover the best hidden rooftop bars with panoramic city views and craft cocktails.',
-    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=800&auto=format&fit=crop', 
-    rating: '4.6', price: 6000, duration: '4 hours'
-  },
-];
+import api from '../lib/api';
+import { Loader } from '../components/ui/Loader';
 
 export default function Explore() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [destinations, setDestinations] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredActivities = MOCK_ACTIVITIES.filter(activity => {
+  useEffect(() => {
+    const fetchExploreData = async () => {
+      setIsLoading(true);
+      try {
+        const [citiesRes, activitiesRes] = await Promise.all([
+          api.cities.getAll(),
+          api.activities.getAll()
+        ]);
+
+        // Map cities to DestinationCard format
+        const mappedDestinations = citiesRes.data.map(city => ({
+          id: city.id,
+          title: city.name,
+          country: city.country,
+          image: city.image_url || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800&auto=format&fit=crop',
+          rating: '4.9'
+        }));
+
+        // Map activities to ActivityCard format
+        const mappedActivities = activitiesRes.data.map(activity => ({
+          id: activity.id,
+          category: activity.category,
+          title: activity.name,
+          description: activity.description,
+          image: activity.image_url || 'https://images.unsplash.com/photo-1535941339077-2dd1c7963098?q=80&w=800&auto=format&fit=crop',
+          rating: '4.8',
+          price: parseInt(activity.price_est),
+          duration: `${activity.duration_hr} hours`
+        }));
+
+        setDestinations(mappedDestinations);
+        setActivities(mappedActivities);
+      } catch (error) {
+        console.error('Failed to fetch explore data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchExploreData();
+  }, []);
+
+  const filteredActivities = activities.filter(activity => {
     const matchesCategory = activeCategory === 'all' || activity.category === activeCategory;
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           activity.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader size="lg" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -110,7 +121,7 @@ export default function Explore() {
                 <button className="text-primary-400 hover:text-primary-300 font-medium transition-colors">See all</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {MOCK_DESTINATIONS.map((dest, idx) => (
+                {destinations.slice(0, 6).map((dest, idx) => (
                   <DestinationCard key={dest.id} item={dest} index={idx} />
                 ))}
               </div>
@@ -129,11 +140,9 @@ export default function Explore() {
             </div>
 
             {filteredActivities.length > 0 ? (
-              <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredActivities.map((activity, idx) => (
-                  <div key={activity.id} className="break-inside-avoid">
-                    <ActivityCard item={activity} index={idx} />
-                  </div>
+                  <ActivityCard key={activity.id} item={activity} index={idx} />
                 ))}
               </div>
             ) : (

@@ -7,3 +7,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Traveloop server running on http://localhost:${PORT}`);
   console.log(`📌 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+// Force restart

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Star, MoreVertical, Compass } from 'lucide-react';
+import { Calendar, MapPin, Star, MoreVertical, Compass, Wallet, CheckSquare, NotebookPen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function TripCard({ trip, index }) {
@@ -15,7 +15,7 @@ export function TripCard({ trip, index }) {
     >
       <div className="relative h-56 overflow-hidden">
         <img 
-          src={trip.cover} 
+          src={trip.cover_image || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800&auto=format&fit=crop'} 
           alt={trip.title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
         />
@@ -24,7 +24,7 @@ export function TripCard({ trip, index }) {
         <div className="absolute top-4 right-4 flex gap-2">
           <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-semibold text-white">
             <Compass size={12} className="text-primary-400" />
-            {trip.mood}
+            {trip.mood || 'Exploration'}
           </div>
           <button 
             className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/60 transition-colors"
@@ -40,7 +40,7 @@ export function TripCard({ trip, index }) {
         <div className="absolute bottom-4 left-5 right-5">
           <h3 className="text-xl font-display font-bold text-white leading-tight mb-1">{trip.title}</h3>
           <p className="text-sm text-white/60 flex items-center gap-1">
-            <MapPin size={12} /> {trip.destination}
+            <MapPin size={12} /> {trip.destination || 'Multiple Cities'}
           </p>
         </div>
       </div>
@@ -49,26 +49,60 @@ export function TripCard({ trip, index }) {
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-white/50 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
             <Calendar size={14} />
-            <span className="font-medium">Dec 20 - 27</span>
+            <span className="font-medium">
+              {trip.start_date ? new Date(trip.start_date).toLocaleDateString() : 'Planned'}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 bg-primary/10 text-primary-300 px-3 py-1.5 rounded-lg border border-primary/20 font-medium">
-            {trip.days} Days
+            {trip.duration_days || 0} Days
           </div>
         </div>
         
         <div>
           <div className="flex justify-between items-end mb-2">
             <p className="text-xs text-white/40 font-medium uppercase tracking-wider">Budget Status</p>
-            <p className="text-sm font-semibold text-emerald-400">₹{trip.spent.toLocaleString()} <span className="text-white/30 font-normal">/ ₹{trip.budget.toLocaleString()}</span></p>
+            <p className="text-sm font-semibold text-emerald-400">₹{(trip.spent || 0).toLocaleString()} <span className="text-white/30 font-normal">/ ₹{(trip.budget || 0).toLocaleString()}</span></p>
           </div>
           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min((trip.spent / trip.budget) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((trip.spent || 0) / (trip.budget || 1)) * 100, 100)}%` }}
               transition={{ duration: 1, delay: 0.2 }}
               className="h-full bg-emerald-500 rounded-full"
             />
           </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <div className="flex gap-1">
+            <button 
+              onClick={(e) => { e.stopPropagation(); navigate(`/trips/${trip.id}/budget`); }}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-emerald-400 transition-colors"
+              title="Budget"
+            >
+              <Wallet size={16} />
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); navigate(`/trips/${trip.id}/checklist`); }}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-primary-400 transition-colors"
+              title="Checklist"
+            >
+              <CheckSquare size={16} />
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); navigate(`/trips/${trip.id}/notes`); }}
+              className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-amber-400 transition-colors"
+              title="Notes"
+            >
+              <NotebookPen size={16} />
+            </button>
+          </div>
+          <button 
+            onClick={(e) => { e.stopPropagation(); navigate(`/trips/${trip.id}/itinerary`); }}
+            className="text-xs font-semibold text-primary-400 hover:text-primary-300 transition-colors"
+          >
+            View Details →
+          </button>
         </div>
       </div>
     </motion.div>

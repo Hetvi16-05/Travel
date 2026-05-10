@@ -2,14 +2,22 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card } from '../ui/Card';
 import { PieChart as PieChartIcon } from 'lucide-react';
 
-const data = [
-  { name: 'Hotels', value: 45000, color: '#8B5CF6' }, // Violet
-  { name: 'Transport', value: 25000, color: '#3B82F6' }, // Blue
-  { name: 'Food', value: 18000, color: '#F59E0B' }, // Amber
-  { name: 'Activities', value: 12000, color: '#10B981' }, // Emerald
-];
+const COLORS = ['#8B5CF6', '#3B82F6', '#F59E0B', '#10B981', '#EC4899', '#06B6D4'];
 
-export function SpendingBreakdownChart() {
+export function SpendingBreakdownChart({ expenses = [] }) {
+  const dataMap = expenses.reduce((acc, exp) => {
+    acc[exp.category] = (acc[exp.category] || 0) + Number(exp.amount);
+    return acc;
+  }, {});
+
+  const data = Object.keys(dataMap).map((name, index) => ({
+    name,
+    value: dataMap[name],
+    color: COLORS[index % COLORS.length]
+  }));
+
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <Card className="h-full min-h-[350px] flex flex-col p-6 border-white/5 bg-[#111827]">
       <div className="flex items-center justify-between mb-2">
@@ -46,9 +54,10 @@ export function SpendingBreakdownChart() {
         {/* Center Text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1">Total Spent</span>
-          <span className="text-white font-display font-bold text-2xl">₹100k</span>
+          <span className="text-white font-display font-bold text-2xl">₹{(total/1000).toFixed(0)}k</span>
         </div>
       </div>
+
 
       {/* Legend */}
       <div className="grid grid-cols-2 gap-3 mt-4">

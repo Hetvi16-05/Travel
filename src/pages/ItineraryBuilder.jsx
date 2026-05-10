@@ -1,53 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download } from 'lucide-react';
+import { ArrowLeft, Save, Map as MapIcon, Calendar, MoreVertical, Share2, Download, Plus, AlertCircle } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { DayCard } from '../components/itinerary/DayCard';
 import { Button } from '../components/ui/Button';
-
-const mockItineraryData = {
-  id: 1,
-  title: "Japan Winter Expedition",
-  dates: "Dec 20 - Dec 27",
-  days: [
-    {
-      day: 1,
-      date: "Dec 20",
-      city: "Tokyo",
-      items: [
-        { type: 'transport', method: 'flight', duration: '12h 30m', details: 'Flight to Narita (NRT)' },
-        { type: 'sight', title: 'Check-in at Shinjuku Prince', time: '14:00', location: 'Shinjuku, Tokyo', cost: 15000, bookingRef: 'HTL-9921' },
-        { type: 'food', title: 'Ramen at Ichiran', time: '19:00', location: 'Shinjuku', description: 'Famous tonkotsu ramen with private dining booths.', cost: 1200 }
-      ]
-    },
-    {
-      day: 2,
-      date: "Dec 21",
-      city: "Tokyo",
-      items: [
-        { type: 'sight', title: 'Senso-ji Temple', time: '09:00', location: 'Asakusa', description: 'Oldest temple in Tokyo. Go early to avoid crowds.' },
-        { type: 'food', title: 'Street Food at Nakamise', time: '11:30', location: 'Asakusa', cost: 2000 },
-        { type: 'sight', title: 'teamLab Planets', time: '15:00', location: 'Toyosu', cost: 3800, bookingRef: 'TL-4412' }
-      ]
-    },
-    {
-      day: 3,
-      date: "Dec 22",
-      city: "Kyoto",
-      items: [
-        { type: 'transport', method: 'train', duration: '2h 15m', details: 'Shinkansen to Kyoto' },
-        { type: 'sight', title: 'Fushimi Inari Shrine', time: '13:00', location: 'Fushimi Ward', description: 'Famous for its thousands of vermilion torii gates.' },
-        { type: 'food', title: 'Traditional Kaiseki Dinner', time: '19:30', location: 'Gion', cost: 12000 }
-      ]
-    }
-  ]
-};
+import api from '../lib/api';
+import { Loader } from '../components/ui/Loader';
+import { toast } from 'react-hot-toast';
 
 export default function ItineraryBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Map');
+  const [trip, setTrip] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchTrip = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.trips.getById(id);
+      setTrip(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrip();
+  }, [id]);
+
+  const addStop = async () => {
+    const cityName = prompt('Enter city name:');
+    if (!cityName) return;
+    
+    try {
+      // First search for the city to get its ID
+      const cityRes = await api.cities.search(cityName);
+      if (!cityRes.data || cityRes.data.length === 0) {
+        toast.error('City not found in our database');
+        return;
+      }
+      
+      const city = cityRes.data[0];
+      await api.trips.addStop(id, { 
+        city_id: city.id,
+        day_number: (trip.stops?.length || 0) + 1,
+        order_index: trip.stops?.length || 0
+      });
+      
+      toast.success(`Added ${city.name} to your itinerary!`);
+      fetchTrip(); // Refresh data
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader size="lg" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !trip) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-screen text-center px-4">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4 text-red-400">
+            <AlertCircle size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Failed to load itinerary</h2>
+          <p className="text-white/50 mb-6">{error || 'Trip not found'}</p>
+          <Button onClick={() => navigate('/trips')}>Back to Trips</Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Format dates for display
+  const formatDateRange = () => {
+    if (!trip.start_date) return 'Flexible Dates';
+    const start = new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (!trip.end_date) return start;
+    const end = new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${start} - ${end}`;
+  };
+
+  // Convert database stops to the format expected by DayCard if necessary
+  const formattedDays = trip.stops?.length > 0 ? trip.stops.map(stop => ({
+    day: stop.day_number,
+    city: stop.city?.name || 'Unknown City',
+    items: stop.activities || []
+  })) : [];
 
   return (
     <DashboardLayout>
@@ -63,9 +114,9 @@ export default function ItineraryBuilder() {
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">{mockItineraryData.title}</h1>
+              <h1 className="text-2xl font-bold text-white tracking-tight">{trip.title}</h1>
               <p className="text-white/50 text-sm flex items-center gap-2 mt-1">
-                <Calendar size={12} /> {mockItineraryData.dates}
+                <Calendar size={12} /> {formatDateRange()}
               </p>
             </div>
           </div>
@@ -73,11 +124,8 @@ export default function ItineraryBuilder() {
             <button className="hidden sm:flex w-10 h-10 rounded-xl bg-white/5 border border-white/10 items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors">
               <Share2 size={16} />
             </button>
-            <button className="hidden sm:flex w-10 h-10 rounded-xl bg-white/5 border border-white/10 items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors">
-              <Download size={16} />
-            </button>
-            <Button className="shadow-glow" onClick={() => navigate('/trips')}>
-              <Save size={16} className="mr-2" /> Save
+            <Button className="shadow-glow" onClick={addStop}>
+              <Plus size={16} className="mr-2" /> Add Stop
             </Button>
           </div>
         </div>
@@ -88,13 +136,22 @@ export default function ItineraryBuilder() {
           {/* Left Panel: Timeline */}
           <div className="w-full lg:w-1/2 h-full overflow-y-auto scrollbar-none p-6 md:p-8">
             <div className="max-w-2xl mx-auto space-y-8 pb-32">
-              {mockItineraryData.days.map((day) => (
-                <DayCard key={day.day} day={day} />
-              ))}
+              {formattedDays.length > 0 ? (
+                formattedDays.map((day) => (
+                  <DayCard key={day.day} day={day} />
+                ))
+              ) : (
+                <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                   <MapIcon className="w-12 h-12 text-white/10 mx-auto mb-4" />
+                   <h3 className="text-lg font-bold text-white mb-2">Your itinerary is empty</h3>
+                   <p className="text-white/50 mb-6">Start by adding your first destination stop.</p>
+                   <Button variant="secondary" onClick={addStop}>Add First Stop</Button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Panel: Sticky Map/Overview (Hidden on mobile) */}
+          {/* Right Panel: Map/Overview */}
           <div className="hidden lg:flex w-1/2 h-full border-l border-white/5 flex-col bg-[#111827]">
             <div className="flex p-4 gap-2 border-b border-white/5">
               {['Map', 'Calendar', 'Notes'].map(tab => (
@@ -117,52 +174,21 @@ export default function ItineraryBuilder() {
                 <div className="absolute inset-0 p-6 flex flex-col items-center justify-center">
                   <div className="w-full h-full rounded-[2rem] border border-white/10 relative overflow-hidden bg-[#0A0F1C] flex flex-col group">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:24px_24px]" />
-                    
-                    {/* Glowing Route Visualization */}
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 500" preserveAspectRatio="none">
-                      <path 
-                        d="M 100 400 C 200 350, 150 150, 300 200 S 450 100, 400 300" 
-                        fill="transparent" 
-                        stroke="url(#routeGlow)" 
-                        strokeWidth="4"
-                        strokeDasharray="8,8"
-                        className="animate-[dash_20s_linear_infinite]"
-                      />
-                      <defs>
-                        <linearGradient id="routeGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#6366F1" />
-                          <stop offset="100%" stopColor="#8B5CF6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    
-                    {/* Map Pins */}
-                    <div className="absolute top-[80%] left-[20%] w-4 h-4 bg-primary-500 rounded-full shadow-glow z-10 flex items-center justify-center">
-                      <div className="absolute w-12 h-12 rounded-full border border-primary/30 animate-ping" />
-                      <span className="absolute -top-6 text-white text-xs font-bold whitespace-nowrap bg-black/50 px-2 py-1 rounded backdrop-blur-md">Narita</span>
-                    </div>
-                    
-                    <div className="absolute top-[40%] left-[60%] w-4 h-4 bg-violet-500 rounded-full shadow-glow z-10 flex items-center justify-center">
-                      <div className="absolute w-12 h-12 rounded-full border border-violet/30 animate-ping" />
-                      <span className="absolute -top-6 text-white text-xs font-bold whitespace-nowrap bg-black/50 px-2 py-1 rounded backdrop-blur-md">Tokyo</span>
-                    </div>
-
-                    <div className="absolute top-[60%] left-[80%] w-4 h-4 bg-emerald-500 rounded-full shadow-glow z-10 flex items-center justify-center">
-                      <div className="absolute w-12 h-12 rounded-full border border-emerald/30 animate-ping" />
-                      <span className="absolute -top-6 text-white text-xs font-bold whitespace-nowrap bg-black/50 px-2 py-1 rounded backdrop-blur-md">Kyoto</span>
-                    </div>
-
-                    {/* Controls overlay */}
-                    <div className="absolute bottom-6 right-6 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20">+</button>
-                      <button className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20">-</button>
+                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                       <div className="w-20 h-20 bg-primary-500/10 rounded-full flex items-center justify-center mb-6">
+                          <MapIcon size={40} className="text-primary-400" />
+                       </div>
+                       <h3 className="text-xl font-bold text-white mb-2">Interactive Map Preview</h3>
+                       <p className="text-white/50 max-w-sm">
+                         We've mapped out {trip.stops?.length || 0} stops for your {trip.title}. View your route and nearby hotspots.
+                       </p>
                     </div>
                   </div>
                 </div>
               )}
               {activeTab !== 'Map' && (
                 <div className="h-full flex items-center justify-center text-white/30">
-                  <p>{activeTab} view coming soon.</p>
+                  <p>{activeTab} view coming soon for {trip.title}.</p>
                 </div>
               )}
             </div>

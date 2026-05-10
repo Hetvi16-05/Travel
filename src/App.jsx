@@ -105,6 +105,30 @@ function AppRoutes() {
         } 
       />
       <Route 
+        path="/trips/:id/budget" 
+        element={
+          <ProtectedRoute>
+            <Budget />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/:id/checklist" 
+        element={
+          <ProtectedRoute>
+            <Checklist />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/:id/notes" 
+        element={
+          <ProtectedRoute>
+            <Notes />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/budget" 
         element={
           <ProtectedRoute>
@@ -128,6 +152,7 @@ function AppRoutes() {
           </ProtectedRoute>
         } 
       />
+
       <Route 
         path="/profile" 
         element={

@@ -31,4 +31,9 @@ const unsaveDestination = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Destination removed' });
 });
 
-module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination };
+const getStats = asyncHandler(async (req, res) => {
+  const stats = await usersService.getUserStats(req.user.id);
+  res.json({ success: true, data: stats });
+});
+
+module.exports = { getMe, updateMe, deleteMe, getSavedDestinations, saveDestination, unsaveDestination, getStats };
