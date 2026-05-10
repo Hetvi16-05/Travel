@@ -217,7 +217,7 @@ export default function PlannerPanel({ tripId, onUpdate }) {
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask Traveloop AI..."
+                  placeholder="Ask Travia AI..."
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-4 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors"
                 />
                 <button

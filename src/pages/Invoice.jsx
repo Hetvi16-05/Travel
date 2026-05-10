@@ -116,7 +116,7 @@ export default function Invoice() {
       }))),
       {
         id: 6, category: 'AI Premium', icon: Sparkles,
-        description: 'Traveloop AI Concierge — 24/7 itinerary support',
+        description: 'Travia AI Concierge — 24/7 itinerary support',
         qty: `${days} days`, unitPrice: 5, total: days * 5,
         accent: { text: 'text-primary-400', bg: 'bg-primary-500/10', border: 'border-primary-500/20' },
       },
@@ -186,7 +186,7 @@ export default function Invoice() {
               </div>
               <div>
                 <div className="text-xl font-display font-bold text-white leading-tight">
-                  Traveloop <span className="text-primary-400">AI</span>
+                  Travia <span className="text-primary-400">AI</span>
                 </div>
                 <div className="text-white/35 text-xs mt-0.5">AI-Powered Travel Planning</div>
               </div>
@@ -297,7 +297,7 @@ export default function Invoice() {
           {/* ── Footer strip ── */}
           <div className="px-8 py-5 bg-white/[0.015] border-t border-white/[0.06] flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <p className="text-white/25 text-xs">
-              Traveloop AI · support@traveloop.ai · traveloop.ai
+              Travia AI · support@travia.ai · travia.ai
             </p>
             <p className="text-white/20 text-xs">
               This invoice was auto-generated. For support, quote reference <span className="text-white/40 font-mono">#{booking.invoiceId}</span>.

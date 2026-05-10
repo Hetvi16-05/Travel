@@ -47,7 +47,7 @@ export default function Signup() {
   return (
     <AuthLayout
       image="https://images.unsplash.com/photo-1522083111333-81a4eb862b5d?w=1200&q=80"
-      quote="Planning a group trip used to be a nightmare. Now, we vote on everything and Traveloop handles the rest."
+      quote="Planning a group trip used to be a nightmare. Now, we vote on everything and Travia handles the rest."
       author="The Wanderlust Crew"
     >
       <motion.div variants={containerVariants} initial="hidden" animate="show">

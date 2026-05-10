@@ -22,6 +22,11 @@ export default function Notes() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) {
+      navigate('/trips');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [tripRes, notesRes] = await Promise.all([
@@ -38,8 +43,10 @@ export default function Notes() {
         setIsLoading(false);
       }
     };
-    if (id) fetchData();
-  }, [id]);
+    fetchData();
+  }, [id, navigate]);
+
+  if (!id) return null;
 
   const handleSaveNote = async () => {
     if (!selectedNote) return;

@@ -40,7 +40,7 @@ export function ShowcaseSection() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-violet-400">generated in seconds.</span>
             </h2>
             <p className="text-xl text-white/50 font-light leading-relaxed max-w-lg">
-              Say goodbye to dozens of open tabs. Traveloop AI analyzes millions of data points to craft the perfect itinerary, optimized route, and realistic budget for your next adventure.
+              Say goodbye to dozens of open tabs. Travia AI analyzes millions of data points to craft the perfect itinerary, optimized route, and realistic budget for your next adventure.
             </p>
             <ul className="space-y-4 pt-4">
               {[

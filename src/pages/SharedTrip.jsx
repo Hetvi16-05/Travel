@@ -45,7 +45,7 @@ export default function SharedTrip() {
       <AlertCircle size={48} className="text-red-400 mb-4" />
       <h2 className="text-2xl font-bold text-white mb-2">Trip Not Found</h2>
       <p className="text-white/40 mb-8">{error || 'This shared link may have expired or is invalid.'}</p>
-      <Button onClick={() => navigate('/')}>Explore Traveloop</Button>
+      <Button onClick={() => navigate('/')}>Explore Travia</Button>
     </div>
   );
 
@@ -67,7 +67,7 @@ export default function SharedTrip() {
         className="fixed top-0 left-0 right-0 z-50 bg-[#0A0F1C]/80 backdrop-blur-xl border-b border-white/5 px-4 md:px-8 py-4 flex items-center justify-between"
       >
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/')} className="text-xl font-display font-bold text-white tracking-tight">Traveloop</button>
+          <button onClick={() => navigate('/')} className="text-xl font-display font-bold text-white tracking-tight">Travia</button>
           <div className="hidden md:block w-px h-6 bg-white/20" />
           <h2 className="hidden md:block font-medium truncate max-w-xs">{trip.title}</h2>
         </div>

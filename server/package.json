@@ -1,7 +1,7 @@
 {
-  "name": "traveloop-server",
+  "name": "travia-server",
   "version": "1.0.0",
-  "description": "Traveloop REST API — Node.js + Express + PostgreSQL",
+  "description": "Travia REST API — Node.js + Express + PostgreSQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

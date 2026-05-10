@@ -305,7 +305,7 @@ export default function AiPlanner() {
               </div>
             </div>
             <p className="text-center text-white/20 text-[11px] mt-2.5">
-              Traveloop AI plans are estimates. Always verify details before booking.
+              Travia AI plans are estimates. Always verify details before booking.
             </p>
           </div>
         </div>

@@ -1,11 +1,11 @@
 /**
- * Traveloop API Client
+ * Travia API Client
  * Centralised fetch wrapper — attaches JWT, handles 401, parses JSON.
  */
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
 
-const getToken = () => localStorage.getItem('traveloop_token')
+const getToken = () => localStorage.getItem('travia_token')
 
 /**
  * Core request helper
@@ -27,9 +27,9 @@ async function request(method, endpoint, body, options = {}) {
 
   // Auto-logout on 401
   if (res.status === 401) {
-    localStorage.removeItem('traveloop_token')
-    localStorage.removeItem('traveloop_user')
-    localStorage.removeItem('traveloop_auth')
+    localStorage.removeItem('travia_token')
+    localStorage.removeItem('travia_user')
+    localStorage.removeItem('travia_auth')
     window.location.href = '/login'
     return
   }

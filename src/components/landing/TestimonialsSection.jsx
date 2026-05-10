@@ -3,10 +3,10 @@ import { Star } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 const testimonials = [
-  { name: 'Priya Mehta', role: 'Solo Traveler', text: 'Traveloop AI planned my entire Ladakh road trip in 2 minutes. The budget tracker saved my life!', avatar: 'P', color: 'from-pink-500 to-rose-500' },
+  { name: 'Priya Mehta', role: 'Solo Traveler', text: 'Travia AI planned my entire Ladakh road trip in 2 minutes. The budget tracker saved my life!', avatar: 'P', color: 'from-pink-500 to-rose-500' },
   { name: 'Rahul Joshi', role: 'Travel Blogger', text: 'The itinerary builder is gorgeous. I use it to create visual content for my blog. 10/10 UX.', avatar: 'R', color: 'from-blue-500 to-cyan-500' },
   { name: 'Sneha Patel', role: 'Family Traveler', text: 'Finally a travel app that feels premium. The collaborative features let my whole family vote on activities.', avatar: 'S', color: 'from-amber-500 to-orange-500' },
-  { name: 'Arjun Singh', role: 'Digital Nomad', text: 'I travel 8 months a year. Traveloop is the only tool I need now. The AI suggestions are actually hidden gems.', avatar: 'A', color: 'from-violet-500 to-fuchsia-500' },
+  { name: 'Arjun Singh', role: 'Digital Nomad', text: 'I travel 8 months a year. Travia is the only tool I need now. The AI suggestions are actually hidden gems.', avatar: 'A', color: 'from-violet-500 to-fuchsia-500' },
 ];
 
 export function TestimonialsSection() {

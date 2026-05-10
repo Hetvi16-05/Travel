@@ -63,7 +63,7 @@ export default function Settings() {
                 <div className="space-y-8">
                   <div>
                     <h2 className="text-2xl font-bold text-white mb-1">Appearance</h2>
-                    <p className="text-white/50 text-sm">Customize how Traveloop looks on your device.</p>
+                    <p className="text-white/50 text-sm">Customize how Travia looks on your device.</p>
                   </div>
 
                   <div className="space-y-4">

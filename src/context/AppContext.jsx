@@ -23,8 +23,8 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('traveloop_token')
-      const savedUser = localStorage.getItem('traveloop_user')
+      const token = localStorage.getItem('travia_token')
+      const savedUser = localStorage.getItem('travia_user')
       
       if (token && savedUser) {
         setUser(JSON.parse(savedUser))
@@ -42,7 +42,7 @@ export function AppProvider({ children }) {
           }
           setUser(updatedUser)
           setPreferences(prefRes.data)
-          localStorage.setItem('traveloop_user', JSON.stringify(updatedUser))
+          localStorage.setItem('travia_user', JSON.stringify(updatedUser))
         } catch (error) {
           console.error('Initial sync failed', error)
           if (error.status === 401) {
@@ -61,8 +61,8 @@ export function AppProvider({ children }) {
       ...data.user,
       avatar: data.user.avatar_url || null,
     }
-    localStorage.setItem('traveloop_token', data.accessToken)
-    localStorage.setItem('traveloop_user', JSON.stringify(loggedInUser))
+    localStorage.setItem('travia_token', data.accessToken)
+    localStorage.setItem('travia_user', JSON.stringify(loggedInUser))
     setUser(loggedInUser)
     setIsAuthenticated(true)
     
@@ -81,8 +81,8 @@ export function AppProvider({ children }) {
       ...data.user,
       avatar: data.user.avatar_url || null,
     }
-    localStorage.setItem('traveloop_token', data.accessToken)
-    localStorage.setItem('traveloop_user', JSON.stringify(newUser))
+    localStorage.setItem('travia_token', data.accessToken)
+    localStorage.setItem('travia_user', JSON.stringify(newUser))
     setUser(newUser)
     setIsAuthenticated(true)
     return { success: true }
@@ -90,9 +90,9 @@ export function AppProvider({ children }) {
 
   const logout = () => {
     authApi.logout().catch(() => {})
-    localStorage.removeItem('traveloop_token')
-    localStorage.removeItem('traveloop_user')
-    localStorage.removeItem('traveloop_auth')
+    localStorage.removeItem('travia_token')
+    localStorage.removeItem('travia_user')
+    localStorage.removeItem('travia_auth')
     setUser(null)
     setPreferences(null)
     setIsAuthenticated(false)

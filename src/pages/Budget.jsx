@@ -23,6 +23,11 @@ export default function Budget() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) {
+      navigate('/trips');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [tripRes, expenseRes] = await Promise.all([
@@ -37,9 +42,10 @@ export default function Budget() {
         setIsLoading(false);
       }
     };
-    if (id) fetchData();
-  }, [id]);
+    fetchData();
+  }, [id, navigate]);
 
+  if (!id) return null;
   if (isLoading) return <DashboardLayout><div className="flex justify-center py-20"><Loader size="lg" /></div></DashboardLayout>;
   if (error) return <DashboardLayout><div className="text-center py-20 text-red-400"><AlertCircle className="mx-auto mb-2" /><p>{error}</p></div></DashboardLayout>;
 

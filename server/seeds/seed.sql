@@ -1,4 +1,4 @@
--- Comprehensive Seed file for Traveloop (Real Images)
+-- Comprehensive Seed file for Travia (Real Images)
 -- Run: psql $DATABASE_URL -f seeds/seed.sql
 
 -- ─── Cities ─────────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ─── Users ──────────────────────────────────────────────────────────────────
 INSERT INTO users (id, name, email, password_hash, role) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Sneha Patel', 'sneha@traveloop.ai', '$2a$12$R.S7W.mYI0x.0zRjY.O/7.G6jI9pU9r1vW6kP8r0xW6kP8r0xW6kP', 'admin')
+  ('00000000-0000-0000-0000-000000000001', 'Sneha Patel', 'sneha@travia.ai', '$2a$12$R.S7W.mYI0x.0zRjY.O/7.G6jI9pU9r1vW6kP8r0xW6kP8r0xW6kP', 'admin')
 ON CONFLICT (id) DO NOTHING;
 
 -- ─── Trips ──────────────────────────────────────────────────────────────────

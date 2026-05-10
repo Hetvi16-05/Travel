@@ -36,7 +36,7 @@ app.use('/api', router);
 app.get('/', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'Welcome to Traveloop API',
+    message: 'Welcome to Travia API',
     version: '1.0.0',
     docs: '/api'
   });
@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'Traveloop API v1 — All systems operational',
+    message: 'Travia API v1 — All systems operational',
     endpoints: ['/auth', '/trips', '/cities', '/activities', '/saved-destinations']
   });
 });

@@ -20,6 +20,11 @@ export default function Checklist() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!id) {
+      navigate('/trips');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [tripRes, checklistRes] = await Promise.all([
@@ -34,8 +39,10 @@ export default function Checklist() {
         setIsLoading(false);
       }
     };
-    if (id) fetchData();
-  }, [id]);
+    fetchData();
+  }, [id, navigate]);
+
+  if (!id) return null;
 
   const toggleItem = async (itemId) => {
     const item = items.find(i => i.id === itemId);

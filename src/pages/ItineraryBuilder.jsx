@@ -15,6 +15,7 @@ export default function ItineraryBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Map');
+  const { activeTrip, setActiveTrip } = useApp();
   const [trip, setTrip] = useState(null);
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +31,8 @@ export default function ItineraryBuilder() {
       ]);
       setTrip(tripRes.data);
       setNotes(notesRes.data || []);
+      // Sync active trip to context
+      setActiveTrip(id);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,6 +43,12 @@ export default function ItineraryBuilder() {
   useEffect(() => {
     setIsLoading(true);
     fetchTrip();
+    
+    // Also set active trip on mount in case fetch is slow
+    setActiveTrip(id);
+
+    // Cleanup on unmount (optional, but keep it for now)
+    // return () => setActiveTrip(null); 
   }, [id]);
 
   const generateAIItinerary = async () => {

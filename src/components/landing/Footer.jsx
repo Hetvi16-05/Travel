@@ -9,7 +9,7 @@ export function Footer() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-primary shadow-glow">
               <Plane size={16} className="text-white" />
             </div>
-            <span className="font-display font-bold text-xl text-white">Traveloop AI</span>
+            <span className="font-display font-bold text-xl text-white">Travia AI</span>
           </div>
           <p className="text-white/40 text-sm leading-relaxed max-w-xs">
             The next generation of travel planning. Powered by artificial intelligence, designed for modern adventurers.
@@ -45,7 +45,7 @@ export function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-white/30 text-sm">© {new Date().getFullYear()} Traveloop AI Inc. All rights reserved.</p>
+        <p className="text-white/30 text-sm">© {new Date().getFullYear()} Travia AI Inc. All rights reserved.</p>
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer">
             <span className="text-white/50 text-xs">𝕏</span>

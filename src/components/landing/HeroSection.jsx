@@ -32,7 +32,7 @@ export function HeroSection() {
       >
         <Badge variant="primary" className="mb-8 py-2 px-4 text-sm border-primary/50 shadow-glow bg-primary/10 backdrop-blur-md">
           <Sparkles size={14} className="text-primary-400" /> 
-          <span className="text-primary-100">Traveloop AI is now in Beta</span>
+          <span className="text-primary-100">Travia AI is now in Beta</span>
         </Badge>
 
         <h1 className="font-display font-black text-6xl md:text-8xl leading-[1.1] tracking-tight mb-8 max-w-5xl text-white">

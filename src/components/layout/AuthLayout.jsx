@@ -18,7 +18,7 @@ export function AuthLayout({ children, image, quote, author }) {
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 shadow-glow">
             <Plane size={20} className="text-white" />
           </div>
-          <span className="font-display font-bold text-2xl text-white tracking-tight">Traveloop <span className="text-primary-400">AI</span></span>
+          <span className="font-display font-bold text-2xl text-white tracking-tight">Travia <span className="text-primary-400">AI</span></span>
         </Link>
         
         <motion.div 
@@ -43,7 +43,7 @@ export function AuthLayout({ children, image, quote, author }) {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/20 text-primary-400">
             <Plane size={16} />
           </div>
-          <span className="font-display font-bold text-lg text-white">Traveloop AI</span>
+          <span className="font-display font-bold text-lg text-white">Travia AI</span>
         </Link>
 
         <div className="w-full max-w-md relative z-10">

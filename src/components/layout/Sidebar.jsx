@@ -25,8 +25,18 @@ const bottomItems = [
 ]
 
 export default function Sidebar() {
-  const { sidebarOpen, toggleSidebar, user, logout } = useApp()
+  const { sidebarOpen, toggleSidebar, user, logout, activeTrip } = useApp()
   const navigate = useNavigate()
+
+  const navItems = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/explore', icon: Compass, label: 'Explore' },
+    { to: '/trips', icon: Map, label: 'Trips' },
+    { to: '/ai-planner', icon: Sparkles, label: 'AI Planner' },
+    { to: activeTrip ? `/trips/${activeTrip}/notes` : '/notes', icon: NotebookPen, label: 'Notes' },
+    { to: activeTrip ? `/trips/${activeTrip}/checklist` : '/checklist', icon: CheckSquare, label: 'Checklist' },
+    { to: '/shared', icon: Share2, label: 'Shared Trips' },
+  ]
 
   const handleLogout = () => {
     logout()
@@ -56,7 +66,7 @@ export default function Sidebar() {
                   transition={{ duration: 0.2 }}
                   className="font-display font-bold text-white text-lg whitespace-nowrap tracking-tight"
                 >
-                  Traveloop
+                  Travia
                 </motion.span>
               )}
             </AnimatePresence>
