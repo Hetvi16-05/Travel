@@ -33,8 +33,6 @@ export default function Sidebar() {
     { to: '/explore', icon: Compass, label: 'Explore' },
     { to: '/trips', icon: Map, label: 'Trips' },
     { to: '/ai-planner', icon: Sparkles, label: 'AI Planner' },
-    { to: activeTrip ? `/trips/${activeTrip}/notes` : '/notes', icon: NotebookPen, label: 'Notes' },
-    { to: activeTrip ? `/trips/${activeTrip}/checklist` : '/checklist', icon: CheckSquare, label: 'Checklist' },
     { to: '/shared', icon: Share2, label: 'Shared Trips' },
   ]
 

@@ -62,7 +62,7 @@ export default function RecommendedCities() {
               onClick={() => navigate(`/explore?city=${encodeURIComponent(city.name)}`)}
             >
               <img 
-                src={city.image_url || 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da'} 
+                src={city.image_url || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80'} 
                 alt={city.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />

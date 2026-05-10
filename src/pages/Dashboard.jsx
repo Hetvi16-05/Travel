@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { 
   Plane, Calendar, MapPin, TrendingUp, Sparkles, Plus, Wallet, Star
 } from 'lucide-react'
@@ -48,6 +49,7 @@ export default function Dashboard() {
     fetchDashboardData()
   }, [])
   
+  const navigate = useNavigate();
   const upcomingTrips = trips.filter(t => t.status === 'upcoming' || t.status === 'planned')
 
 
@@ -140,7 +142,11 @@ export default function Dashboard() {
             
             <div className="space-y-4">
               {upcomingTrips.slice(0, 2).map((trip) => (
-                <div key={trip.id} className="flex gap-4 p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group cursor-pointer">
+                <div 
+                  key={trip.id} 
+                  onClick={() => navigate(`/trips/${trip.id}/itinerary`)}
+                  className="flex gap-4 p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group cursor-pointer"
+                >
                   <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 relative">
                     <img src={trip.cover} alt={trip.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />

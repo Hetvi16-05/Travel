@@ -62,38 +62,39 @@ export default function Invoice() {
   );
 
   // Derive booking data from trip
-  const startDate = new Date(trip.start_date);
-  const endDate = new Date(trip.end_date);
-  const days = (startDate && endDate && !isNaN(startDate) && !isNaN(endDate))
-    ? Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1)
-    : 1;
+  const startDate = trip.start_date ? new Date(trip.start_date) : null;
+  const endDate = trip.end_date ? new Date(trip.end_date) : null;
+  
+  const isValidRange = startDate && endDate && !isNaN(startDate) && !isNaN(endDate);
+  const nights = isValidRange ? Math.max(0, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))) : 0;
+  const totalDays = nights + 1;
 
   const booking = {
-    invoiceId: `TRV-${new Date(trip.created_at).getFullYear()}-${trip.id.slice(0, 4).toUpperCase()}`,
-    bookingDate: new Date(trip.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    invoiceId: `TRV-${new Date(trip.created_at).getFullYear()}-${(trip.id || '0000').slice(0, 4).toUpperCase()}`,
+    bookingDate: new Date(trip.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     status: trip.payment_status === 'paid' ? 'confirmed' : 'pending',
     traveler: {
       name: user?.name || 'Guest Traveler',
-      email: user?.email || '',
+      email: user?.email || 'traveler@travia.ai',
       phone: '+91 ' + (user?.phone || '98765 43210'),
       tier: 'Premium Member',
     },
     trip: {
-      title: trip.title,
+      title: trip.title || 'Untitled Trip',
       emoji: '🌍',
-      destination: trip.destination,
-      checkIn: startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      checkOut: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      nights: days - 1,
-      days: days,
+      destination: trip.destination || 'Global',
+      checkIn: startDate && !isNaN(startDate) ? startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD',
+      checkOut: endDate && !isNaN(endDate) ? endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD',
+      nights: nights,
+      days: totalDays,
       guests: 2,
       mood: trip.mood || 'Adventure',
     },
     lineItems: [
       {
         id: 1, category: 'Hotel', icon: BedDouble,
-        description: `Accommodation in ${trip.destination} (${days - 1} Nights)`,
-        qty: `${days - 1} nights`, unitPrice: 140, total: (days - 1) * 140,
+        description: `Accommodation in ${trip.destination || 'Destination'} (${nights} Nights)`,
+        qty: `${nights} nights`, unitPrice: 140, total: nights * 140,
         accent: { text: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
       },
       {

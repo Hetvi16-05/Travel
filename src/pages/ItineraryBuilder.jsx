@@ -214,20 +214,28 @@ export default function ItineraryBuilder() {
 
           {/* Right Panel: Map/Overview */}
           <div className="hidden lg:flex w-1/2 h-full border-l border-white/5 flex-col bg-[#111827]">
-            <div className="flex p-4 gap-2 border-b border-white/5">
-              {['Map', 'Calendar', 'Notes'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    activeTab === tab 
-                      ? 'bg-white/10 text-white' 
-                      : 'text-white/40 hover:text-white/80 hover:bg-white/5'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className="flex p-4 items-center justify-between border-b border-white/5">
+              <div className="flex gap-2">
+                {['Map', 'Calendar', 'Notes'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === tab 
+                        ? 'bg-white/10 text-white' 
+                        : 'text-white/40 hover:text-white/80 hover:bg-white/5'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              <button 
+                onClick={() => navigate(`/trips/${id}/invoice`)}
+                className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary-300 hover:bg-primary/20 text-xs font-bold flex items-center gap-2 transition-all"
+              >
+                <Ticket size={14} /> Booking Report
+              </button>
             </div>
 
             <div className="flex-1 relative overflow-hidden">
