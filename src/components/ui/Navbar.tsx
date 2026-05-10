@@ -27,14 +27,14 @@ export const Navbar = () => {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 py-4",
-        scrolled ? "top-4" : "top-0"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6",
+        scrolled ? "top-2" : "top-0"
       )}
     >
       <div
         className={cn(
-          "max-w-7xl mx-auto rounded-2xl transition-all duration-500 flex items-center justify-between px-6 py-3",
-          scrolled ? "glass-dark shadow-2xl" : "bg-transparent"
+          "max-w-7xl mx-auto rounded-2xl transition-all duration-500 flex items-center justify-between px-6 py-2",
+          scrolled ? "glass-dark shadow-2xl border-white/10" : "bg-transparent py-4"
         )}
       >
         <Link href="/" className="flex items-center gap-2 group">

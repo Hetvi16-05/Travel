@@ -17,7 +17,7 @@ export const AIAssistant = () => {
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-20 right-0 w-[350px] md:w-[400px] h-[500px] glass-dark rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-violet-500/30"
+            className="absolute bottom-20 right-0 w-[320px] md:w-[380px] h-[450px] glass-dark rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-violet-500/30"
           >
             {/* Header */}
             <div className="p-6 bg-gradient-to-r from-violet-600/20 to-pink-600/20 flex items-center justify-between border-b border-white/10">

@@ -38,9 +38,9 @@ const destinations = [
 
 export const PopularDestinations = () => {
   return (
-    <section className="py-24 px-6">
+    <section className="py-40 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div>
             <motion.h2
               initial={{ opacity: 0, x: -20 }}
