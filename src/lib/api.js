@@ -1,77 +1,3 @@
-<<<<<<< HEAD
-const BASE_URL = 'http://localhost:3000/api';
-
-const apiFetch = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('traveloop_token');
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
-  }
-
-  return data;
-};
-
-export const authApi = {
-  login: (credentials) => apiFetch('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-  }),
-  register: (userData) => apiFetch('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(userData),
-  }),
-  getMe: () => apiFetch('/auth/me'),
-};
-
-export const tripsApi = {
-  getAll: () => apiFetch('/trips'),
-  getById: (id) => apiFetch(`/trips/${id}`),
-  create: (tripData) => apiFetch('/trips', {
-    method: 'POST',
-    body: JSON.stringify(tripData),
-  }),
-  update: (id, tripData) => apiFetch(`/trips/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(tripData),
-  }),
-  delete: (id) => apiFetch(`/trips/${id}`, {
-    method: 'DELETE',
-  }),
-};
-
-export const citiesApi = {
-  getAll: (params) => {
-    const query = new URLSearchParams(params).toString();
-    return apiFetch(`/cities?${query}`);
-  },
-  getActivities: (params) => {
-    const query = new URLSearchParams(params).toString();
-    return apiFetch(`/activities?${query}`);
-  },
-};
-
-export default {
-  auth: authApi,
-  trips: tripsApi,
-  cities: citiesApi,
-};
-=======
 /**
  * Traveloop API Client
  * Centralised fetch wrapper — attaches JWT, handles 401, parses JSON.
@@ -111,7 +37,6 @@ async function request(method, endpoint, body, options = {}) {
   const data = await res.json()
 
   if (!res.ok) {
-    // Throw with the API error message so the UI can display it
     const err = new Error(data.message || 'Something went wrong')
     err.status = res.status
     err.errors = data.errors || []
@@ -212,4 +137,14 @@ export const savedApi = {
 export const shareApi = {
   getByToken: (token) => request('GET', `/share/${token}`),
 }
->>>>>>> 5d49661 (feat: implement Google OAuth2 authentication flow for users)
+
+// ─── AI Planner ───────────────────────────────────────────────
+export const aiApi = {
+  /**
+   * Generate an AI trip plan
+   * @param {string} message — user's natural language query
+   * @param {Array}  history — previous messages for context [{role, content}]
+   */
+  plan: (message, history = []) =>
+    request('POST', '/ai/plan', { message, history }),
+}

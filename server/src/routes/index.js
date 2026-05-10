@@ -12,6 +12,7 @@ const notesRoutes      = require('../modules/notes/notes.routes');
 const shareRoutes      = require('../modules/share/share.routes');
 const adminRoutes      = require('../modules/admin/admin.routes');
 const savedDestinationsRoutes = require('../modules/saved_destinations/saved_destinations.routes');
+const aiRoutes         = require('../modules/ai/ai.routes');
 
 
 const router = Router();
@@ -47,5 +48,8 @@ router.use('/share', shareRoutes);
 
 // Admin
 router.use('/admin', adminRoutes);
+
+// AI Trip Planner
+router.use('/ai', aiRoutes);
 
 module.exports = router;
