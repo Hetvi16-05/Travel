@@ -1,0 +1,170 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { AppProvider, useApp } from './context/AppContext'
+import Landing from './pages/Landing'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import Dashboard from './pages/Dashboard'
+import Trips from './pages/Trips'
+import CreateTrip from './pages/CreateTrip'
+import EditTrip from './pages/EditTrip'
+import AiPlanner from './pages/AiPlanner'
+import ItineraryBuilder from './pages/ItineraryBuilder'
+import Budget from './pages/Budget'
+import Explore from './pages/Explore'
+import Checklist from './pages/Checklist'
+import Notes from './pages/Notes'
+import SharedTrip from './pages/SharedTrip'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
+import Admin from './pages/Admin'
+import './App.css'
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useApp()
+  return isAuthenticated ? children : <Navigate to="/login" />
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      {/* Public Shared Trip Route */}
+      <Route path="/shared/:id" element={<SharedTrip />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/explore" 
+        element={
+          <ProtectedRoute>
+            <Explore />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips" 
+        element={
+          <ProtectedRoute>
+            <Trips />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/create" 
+        element={
+          <ProtectedRoute>
+            <CreateTrip />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditTrip />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/trips/:id/itinerary" 
+        element={
+          <ProtectedRoute>
+            <ItineraryBuilder />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/ai-planner" 
+        element={
+          <ProtectedRoute>
+            <AiPlanner />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/budget" 
+        element={
+          <ProtectedRoute>
+            <Budget />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/checklist" 
+        element={
+          <ProtectedRoute>
+            <Checklist />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/notes" 
+        element={
+          <ProtectedRoute>
+            <Notes />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        } 
+      />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <Router>
+        <AppRoutes />
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1E293B',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+            },
+          }}
+        />
+      </Router>
+    </AppProvider>
+  )
+}
+
+export default App
