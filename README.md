@@ -27,7 +27,7 @@ Travia is a modern, high-performance travel planning platform that leverages AI 
 - **Runtime**: Node.js
 - **Framework**: Express
 - **Database**: PostgreSQL
-- **AI Integration**: Google Generative AI (Gemini)
+- **AI Integration**: NLP
 - **Security**: JWT Authentication, Bcrypt, Helmet, CORS
 
 ---
@@ -37,7 +37,6 @@ Travia is a modern, high-performance travel planning platform that leverages AI 
 ### Prerequisites
 - Node.js (v18 or higher)
 - PostgreSQL
-- A Google Gemini API Key
 
 ### 1. Clone & Install
 ```bash
